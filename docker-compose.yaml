@@ -1,0 +1,29 @@
+services:
+  reservation-frontend:
+    build:
+      context: ./reservation-front
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - API_BACK_URL=http://reservation-backend
+    depends_on:
+      - reservation-backend
+    networks:
+      - reservation-network
+
+  reservation-backend:
+    build:
+      context: ./ReservationAPI
+      dockerfile: Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+    networks:
+      - reservation-network
+
+networks:
+  reservation-network:
+    driver: bridge
