@@ -68,4 +68,42 @@ public class ParkingController(IParkingService parkingService) : ControllerBase
             return StatusCode(500, ex.Message);
         }
     }
+    
+    [HttpPut]
+    [Produces("application/json")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> Put([FromBody] ParkingSlot? parkingSlot)
+    {
+        if (parkingSlot == null)
+        {
+            return BadRequest("Parking slot cannot be null.");
+        }
+        try
+        {
+            await parkingService.UpdateParkingSlotAsync(parkingSlot);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    
+    [HttpDelete("{id}")]
+    [Produces("application/json")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            await parkingService.DeleteParkingSlotAsync(id);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
 }

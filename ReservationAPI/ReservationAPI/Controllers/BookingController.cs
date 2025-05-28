@@ -104,4 +104,47 @@ public class BookingController(IBookingService bookingService) : ControllerBase
             return StatusCode(500, ex.Message);
         }
     }
+    
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Put(int id, [FromBody] Booking? booking)
+    {
+        if (booking == null)
+        {
+            return BadRequest("Booking cannot be null.");
+        }
+        try
+        {
+            var existingBooking = await bookingService.GetBookingByIdAsync(id);
+            if (existingBooking == null)
+            {
+                return NotFound($"Booking with ID {id} not found.");
+            }
+            booking.Id = id; // Ensure the ID is set for the update
+            await bookingService.UpdateBookingAsync(booking);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        try
+        {
+            var existingBooking = await bookingService.GetBookingByIdAsync(id);
+            if (existingBooking == null)
+            {
+                return NotFound($"Booking with ID {id} not found.");
+            }
+            await bookingService.DeleteBookingAsync(id);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
 }
