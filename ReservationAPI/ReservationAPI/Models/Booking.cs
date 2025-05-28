@@ -1,3 +1,5 @@
+using System;
+
 namespace ReservationAPI.Models;
 
 public class Booking
