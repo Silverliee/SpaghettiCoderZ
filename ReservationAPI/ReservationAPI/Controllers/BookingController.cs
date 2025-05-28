@@ -57,4 +57,9 @@ public class BookingController : ControllerBase
         
         return bookingsResult;
     }
+
+    public async Task<ActionResult> Post([FromQuery] int idSlot, DateTime date)
+    {
+        return null;
+    }
 }

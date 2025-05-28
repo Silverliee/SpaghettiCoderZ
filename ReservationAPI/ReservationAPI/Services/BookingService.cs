@@ -58,4 +58,10 @@ public class BookingService : IBookingService
     {
         return _bookingRepository.GetAvailableSlotsAsync(date);
     }
+
+    public Task<Booking> CreateBooking()
+    {
+        //TODO
+        throw new NotImplementedException();
+    }
 }
