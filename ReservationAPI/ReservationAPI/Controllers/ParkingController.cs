@@ -35,10 +35,32 @@ public class ParkingController(IParkingService parkingService) : ControllerBase
         {
             return BadRequest("Parking slot cannot be null.");
         }
-
         try
         {
             await parkingService.AddParkingSlotAsync(parkingSlot);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    [HttpPost("bulk")]
+    [Produces("application/json")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> Post([FromBody] List<ParkingSlot>? parkingSlots)
+    {
+        if (parkingSlots == null || parkingSlots.Count == 0)
+        {
+            return BadRequest("Parking slots cannot be null or empty.");
+        }
+        try
+        {
+            foreach (var slot in parkingSlots)
+            {
+                await parkingService.AddParkingSlotAsync(slot);
+            }
             return Ok();
         }
         catch (Exception ex)

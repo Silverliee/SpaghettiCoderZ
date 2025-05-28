@@ -18,14 +18,21 @@ public class ParkingRepository(SqLiteDbContext dbContext) : IParkingRepository
         return dbContext.ParkingSlots.FindAsync(id).AsTask();
     }
 
-    public Task<List<ParkingSlot>> GetAvailableSlotsAsync(DateOnly date)
-    {
-        return Task.FromResult(dbContext.ParkingSlots
-            .Where(slot => !dbContext.Bookings.Any(b => b.Date == date.ToDateTime(TimeOnly.MinValue) && b.Slot.Id == slot.Id && !slot.InMaintenance))
-            .OrderBy(slot => slot.Row)
-            .ThenBy(slot => slot.Column)
-            .ToList());
-    }
+   public Task<List<ParkingSlot>> GetAvailableSlotsAsync(DateOnly date)
+   {
+       var reservedSlotIds = dbContext.Bookings
+           .Where(r => DateOnly.FromDateTime(r.Date) == date)
+           .Select(r => r.SlotId)
+           .ToList();
+   
+       var availableSlots = dbContext.ParkingSlots
+           .Where(slot => !reservedSlotIds.Contains(slot.Id))
+           .OrderBy(slot => slot.Row)
+           .ThenBy(slot => slot.Column)
+           .ToList();
+   
+       return Task.FromResult(availableSlots);
+   }
 
     public Task<ParkingSlot> CreateParkingSlotAsync(ParkingSlot parkingSlot)
     {

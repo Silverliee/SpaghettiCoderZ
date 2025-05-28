@@ -45,7 +45,7 @@ public class BookingController(IBookingService bookingService) : ControllerBase
         }
     }
     
-    [HttpGet("{date:date}")]
+    [HttpGet("date/{date}")]
     [Produces("application/json")]
     [ProducesResponseType(typeof(Booking), 200)]
     [ProducesResponseType(500)]
@@ -73,6 +73,30 @@ public class BookingController(IBookingService bookingService) : ControllerBase
         try
         {
             await bookingService.CreateBookingAsync(booking);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    
+    [HttpPost("bulk")]
+    [Produces("application/json")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> Post([FromBody] List<Booking>? bookings)
+    {
+        if (bookings == null || bookings.Count == 0)
+        {
+            return BadRequest("Bookings cannot be null or empty.");
+        }
+        try
+        {
+            foreach (var booking in bookings)
+            {
+                await bookingService.CreateBookingAsync(booking);
+            }
             return Ok();
         }
         catch (Exception ex)

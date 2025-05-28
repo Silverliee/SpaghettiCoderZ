@@ -22,10 +22,9 @@ public class SqLiteDbContext : DbContext
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Date).IsRequired();
-            entity.HasOne(e => e.Slot)
-                .WithMany()
-                .HasForeignKey(e => e.SlotId)
-                .IsRequired();
+            entity.Property(e => e.SlotId).IsRequired();
+            entity.Property(e => e.Status).IsRequired();
+            
         });
 
         modelBuilder.Entity<ParkingSlot>(entity =>
