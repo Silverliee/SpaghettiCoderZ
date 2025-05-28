@@ -15,4 +15,17 @@ public class Booking
     public DateOnly Date { get; set; }
     public ParkingSlot Slot { get; set; }
     public BookingStatus Status { get; set; }
+
+    public Booking()
+    {
+        
+    }
+
+    public Booking(int id, DateOnly date, ParkingSlot slot, BookingStatus status)
+    {
+        Id = id;
+        Date = date;
+        Slot = slot;
+        Status = status;
+    }
 }
