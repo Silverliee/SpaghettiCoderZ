@@ -26,4 +26,10 @@ public class BookingService : IBookingService
 
         return Task.FromResult(slots);
     }
+
+    public Task<Booking> CreateBooking()
+    {
+        //TODO
+        throw new NotImplementedException();
+    }
 }
