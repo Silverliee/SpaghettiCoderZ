@@ -12,7 +12,7 @@ public enum BookingStatus
 public class Booking
 {
     public int Id { get; set; }
-    public DateOnly Date { get; set; }
+    public DateTime Date { get; set; }
     public ParkingSlot Slot { get; set; }
     public BookingStatus Status { get; set; }
 
@@ -21,7 +21,7 @@ public class Booking
         
     }
 
-    public Booking(int id, DateOnly date, ParkingSlot slot, BookingStatus status)
+    public Booking(int id, DateTime date, ParkingSlot slot, BookingStatus status)
     {
         Id = id;
         Date = date;

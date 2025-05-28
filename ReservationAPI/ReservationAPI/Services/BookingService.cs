@@ -4,7 +4,7 @@ namespace ReservationAPI.Services;
 
 public class BookingService : IBookingService
 {
-    public async Task<List<Booking>> GetBookingsByDateAsync(DateOnly date)
+    public async Task<List<Booking>> GetBookingsByDateAsync(DateTime date)
     {
         var parkings = await GetAllParkingSlotsAsync();
         List<Booking> bookings = [];

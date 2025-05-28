@@ -4,6 +4,6 @@ namespace ReservationAPI.Services;
 
 public interface IBookingService
 {
-    Task<List<Booking>> GetBookingsByDateAsync(DateOnly date);
+    Task<List<Booking>> GetBookingsByDateAsync(DateTime date);
     Task<List<ParkingSlot>> GetAllParkingSlotsAsync();
 }
