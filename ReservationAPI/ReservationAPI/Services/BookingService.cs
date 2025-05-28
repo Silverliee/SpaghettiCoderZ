@@ -1,29 +1,61 @@
 using ReservationAPI.Models;
+using ReservationAPI.Repositories;
 
 namespace ReservationAPI.Services;
 
 public class BookingService : IBookingService
 {
-    public async Task<List<Booking>> GetBookingsByDateAsync(DateTime date)
-    {
-        var parkings = await GetAllParkingSlotsAsync();
-        List<Booking> bookings = [];
-        for (int i = 0; i < 3; i++)
-        {
-            bookings.Add(new Booking(i, date, parkings[i], BookingStatus.Booked));
-        }
+    private readonly IBookingRepository _bookingRepository;
 
-        return bookings;
+    public Task<Booking?> GetBookingByIdAsync(int id)
+    {
+        return _bookingRepository.GetBookingByIdAsync(id);
     }
 
-    public Task<List<ParkingSlot>> GetAllParkingSlotsAsync()
+    public Task<List<Booking>> GetBookingsAsync()
     {
-        List<ParkingSlot> slots = [];
-        for (int i = 0; i < 3; i++)
+        return _bookingRepository.GetBookingsAsync();
+    }
+
+    public async Task<List<Booking>> GetBookingsByDateAsync(DateOnly date)
+    {
+
+        return await _bookingRepository.GetBookingsByDateAsync(date);
+    }
+
+    public Task<Booking> CreateBookingAsync(Booking booking)
+    {
+        if (booking == null)
         {
-            slots.Add(new ParkingSlot(i, "A", i, true));
+            throw new ArgumentNullException(nameof(booking), "Booking cannot be null");
         }
 
-        return Task.FromResult(slots);
+        return _bookingRepository.CreateBookingAsync(booking);
+    }
+
+    public Task<Booking> UpdateBookingAsync(Booking booking)
+    {
+        return _bookingRepository.UpdateBookingAsync(booking);
+    }
+
+    public Task<bool> DeleteBookingAsync(int id)
+    {
+        return _bookingRepository.DeleteBookingAsync(id);
+    }
+
+    public async Task<List<ParkingSlot>> GetAllParkingSlotsAsync()
+    {
+        
+        return await _bookingRepository.GetAllParkingSlotsAsync();
+    }
+
+    public Task<ParkingSlot?> GetSlotByIdAsync(int id)
+    {
+        return _bookingRepository.GetSlotByIdAsync(id);
+    }
+
+    public Task<List<ParkingSlot>> GetAvailableSlotsAsync(DateOnly date)
+    {
+        return _bookingRepository.GetAvailableSlotsAsync(date);
     }
 }

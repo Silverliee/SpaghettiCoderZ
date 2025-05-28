@@ -6,6 +6,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using ReservationAPI.Repositories;
 using ReservationAPI.Services;
 
 namespace ReservationAPI;
@@ -25,8 +26,11 @@ public abstract partial class Program
         var builder = WebApplication.CreateBuilder(args);
         // Configuration de scope
         builder.Services.AddSingleton(new ConcurrentDictionary<string, WebSocket>());
-        builder.Services.AddScoped<IBookingService, BookingService>();
-        
+        builder.Services.AddSingleton<AppDbContext>();
+        builder.Services.AddSingleton<IBookingRepository, BookingRepository>();
+        builder.Services.AddSingleton<IBookingService, BookingService>();
+
+
         // Configuration des controllers/endpoints
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddControllers();
@@ -93,7 +97,7 @@ public abstract partial class Program
                 }
             });
         });
-
+        
         var app = builder.Build();
         // Configure the HTTP request pipeline.
         app.UseCors("AllowAll");

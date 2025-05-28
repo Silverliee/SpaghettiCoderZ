@@ -1,20 +1,18 @@
 using ReservationAPI.Models;
 
-namespace ReservationAPI.Services;
+namespace ReservationAPI.Repositories;
 
-public interface IBookingService
+public interface IBookingRepository
 {
-    // Booking operations
     Task<Booking?> GetBookingByIdAsync(int id);
     Task<List<Booking>> GetBookingsAsync();
-    Task<List<Booking>> GetBookingsByDateAsync(DateOnly date);
     Task<Booking> CreateBookingAsync(Booking booking);
     Task<Booking> UpdateBookingAsync(Booking booking);
     Task<bool> DeleteBookingAsync(int id);
+    Task<List<Booking>> GetBookingsByDateAsync(DateOnly date);
     
-    
-    Task<List<ParkingSlot>> GetAllParkingSlotsAsync();
+    // Additional methods to manage Parking Slots
     Task<ParkingSlot?> GetSlotByIdAsync(int id);
     Task<List<ParkingSlot>> GetAvailableSlotsAsync(DateOnly date);
-    
+    Task<List<ParkingSlot>> GetAllParkingSlotsAsync();
 }

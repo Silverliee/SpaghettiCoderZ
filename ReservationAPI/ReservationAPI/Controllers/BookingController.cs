@@ -31,7 +31,7 @@ public class BookingController : ControllerBase
     }
 
     [HttpGet("byDate")]
-    public async Task<ActionResult<BookingResponseDto>> GetByDate([FromQuery] DateTime date)
+    public async Task<ActionResult<BookingResponseDto>> GetByDate([FromQuery] DateOnly date)
     {
         List<Booking> bookings; 
         try
