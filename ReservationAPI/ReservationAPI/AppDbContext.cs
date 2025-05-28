@@ -16,7 +16,7 @@ public class AppDbContext : DbContext
     
     public AppDbContext() : base()
     {
-        Database.EnsureCreated();
+        //Database.EnsureCreated();
     }
     
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -25,7 +25,7 @@ public class AppDbContext : DbContext
         //print current directory
         Console.WriteLine($"Current Directory: {Directory.GetCurrentDirectory()}");
         var dbPath = Path.Combine("./db/", "ReservationAPI", "database.sqlite");
-        
+        //var dbPath = Path.Combine("resources", "db", "database.sqlite");        
         // Ensure directory exists
         Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
         
