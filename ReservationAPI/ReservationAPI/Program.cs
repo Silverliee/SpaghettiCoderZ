@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Reflection;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using ReservationAPI.Infrastructure.Database;
 using ReservationAPI.Repositories;
 using ReservationAPI.Services;
 
@@ -26,22 +24,16 @@ public abstract partial class Program
         var builder = WebApplication.CreateBuilder(args);
         // Configuration de scope
         builder.Services.AddSingleton(new ConcurrentDictionary<string, WebSocket>());
-        builder.Services.AddSingleton<AppDbContext>();
+        builder.Services.AddSingleton<SqLiteDbContext>();
         builder.Services.AddSingleton<IBookingRepository, BookingRepository>();
         builder.Services.AddSingleton<IBookingService, BookingService>();
-
-
+        builder.Services.AddSingleton<IParkingRepository, ParkingRepository>();
+        builder.Services.AddSingleton<IParkingService, ParkingService>();
         // Configuration des controllers/endpoints
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddControllers();
         // Configuration du health check
         builder.Services.AddHealthChecks();
-        // Configuration de la base de données
-        //builder.Services.AddDbContext<MySqlDbContext>(options =>
-        //{
-        //    options.UseSqlServer(builder.Configuration.GetConnectionString("database"));
-        //});
-
         // Configuration de CORS
         builder.Services.AddCors(options =>
         {
@@ -69,53 +61,21 @@ public abstract partial class Program
                     }
                 }
             );
-
-            options.AddSecurityDefinition(
-                "JWT-BEARER-TOKEN",
-                new OpenApiSecurityScheme
-                {
-                    Description = "Tu peux mettre ton token ici ;) PS: ajoute Bearer suivie d'un espace avant le token",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
-                }
-            );
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "JWT-BEARER-TOKEN"
-                        }
-                    },
-                    new string[] { }
-                }
-            });
         });
-        
+
         var app = builder.Build();
-        
         using (var scope = app.Services.CreateScope())
         {
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var db = scope.ServiceProvider.GetRequiredService<SqLiteDbContext>();
             db.Database.EnsureCreated();
         }
-        
+
         // Configure the HTTP request pipeline.
         app.UseCors("AllowAll");
         app.UseHttpsRedirection();
         // configure swagger
         app.UseSwagger();
         app.UseSwaggerUI();
-        // configure authentication
-        app.UseAuthentication();
-        app.UseAuthorization();
-        app.UseWebSockets();
         // map controllers and run the app
         app.MapControllers();
         app.MapHealthChecks("/health");

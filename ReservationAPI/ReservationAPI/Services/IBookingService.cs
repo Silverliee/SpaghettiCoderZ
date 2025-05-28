@@ -11,10 +11,4 @@ public interface IBookingService
     Task<Booking> CreateBookingAsync(Booking booking);
     Task<Booking> UpdateBookingAsync(Booking booking);
     Task<bool> DeleteBookingAsync(int id);
-    
-    
-    Task<List<ParkingSlot>> GetAllParkingSlotsAsync();
-    Task<ParkingSlot?> GetSlotByIdAsync(int id);
-    Task<List<ParkingSlot>> GetAvailableSlotsAsync(DateOnly date);
-    
 }

@@ -1,40 +1,23 @@
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using ReservationAPI.Models;
 
-namespace ReservationAPI;
+namespace ReservationAPI.Infrastructure.Database;
 
-public class AppDbContext : DbContext
+public class SqLiteDbContext : DbContext
 {
-    
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<ParkingSlot> ParkingSlots { get; set; }
-    
-    public AppDbContext() : base()
-    {
-        //Database.EnsureCreated();
-    }
-    
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        // Get the user's documents folder
-        //print current directory
         Console.WriteLine($"Current Directory: {Directory.GetCurrentDirectory()}");
-        var dbPath = Path.Combine("./db/", "ReservationAPI", "database.sqlite");
-        //var dbPath = Path.Combine("resources", "db", "database.sqlite");        
-        // Ensure directory exists
+        var dbPath = Path.Combine("./Infrastructure/", "Database", "database.sqlite");
         Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
-        
         optionsBuilder.UseSqlite($"Data Source={dbPath}");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Configure User entity
         modelBuilder.Entity<Booking>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -45,14 +28,13 @@ public class AppDbContext : DbContext
                 .IsRequired();
         });
 
-        // Configure Post entity
         modelBuilder.Entity<ParkingSlot>(entity =>
         {
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Column).IsRequired();
             entity.Property(e => e.Row).IsRequired();
-            entity.Property(e => e.HasCharger).IsRequired();   
-            
+            entity.Property(e => e.HasCharger).IsRequired();
+            entity.Property(e => e.InMaintenance);
         });
     }
 }

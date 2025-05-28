@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ReservationAPI.DTOs.Response;
 using ReservationAPI.Models;
 using ReservationAPI.Services;
 
@@ -7,60 +6,78 @@ namespace ReservationAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class BookingController : ControllerBase
+public class BookingController(IBookingService bookingService) : ControllerBase
 {
-    private readonly IBookingService _bookingService;
-
-    public BookingController(IBookingService bookingService)
+    [HttpGet]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(List<Booking>), 200)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> Get()
     {
-        _bookingService = bookingService;
+        try
+        {
+            var bookings = await bookingService.GetBookingsAsync();
+            return Ok(bookings);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    [HttpGet("{id:int}")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(Booking), 200)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> Get(int id)
+    {
+        try
+        {
+            var booking = await bookingService.GetBookingByIdAsync(id);
+            if (booking == null)
+            {
+                return NotFound($"Booking with ID {id} not found.");
+            }
+            return Ok(booking);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
     
-    [HttpGet]
-    public IActionResult Get()
+    [HttpGet("{date:date}")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(Booking), 200)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> Get(DateOnly date)
     {
-        // retourne un ok json avec des fakes data de reservation :
-        return Ok(new
-        {
-            Bookings = new[]
-            {
-                new { Id = 1, PlaceId = 1, Date = "2023-10-01", User = 1 },
-                new { Id = 2, PlaceId = 2, Date = "2023-10-02", User = 2 }
-            }
-        });
-    }
-
-    [HttpGet("byDate")]
-    public async Task<ActionResult<BookingResponseDto>> GetByDate([FromQuery] DateOnly date)
-    {
-        List<Booking> bookings; 
         try
         {
-            bookings = await _bookingService.GetBookingsByDateAsync(date);
+            var bookings = await bookingService.GetBookingsByDateAsync(date);
+            return Ok(bookings);
         }
         catch (Exception ex)
         {
             return StatusCode(500, ex.Message);
         }
-
-        List<ParkingSlot> parkingSlots;
-        try
-        {
-            parkingSlots = await _bookingService.GetAllParkingSlotsAsync();
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, ex.Message);
-        }
-
-        var bookingsResult = new BookingResponseDto(parkingSlots, bookings);
-        
-        return bookingsResult;
     }
+
 
     [HttpPost]
-    public async Task<ActionResult> Post([FromQuery] int idSlot, DateTime date)
+    public async Task<IActionResult> Post([FromBody] Booking? booking)
     {
-        return null;
+        if (booking == null)
+        {
+            return BadRequest("Booking cannot be null.");
+        }
+        try
+        {
+            await bookingService.CreateBookingAsync(booking);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
     }
 }

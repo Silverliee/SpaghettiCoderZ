@@ -6,14 +6,5 @@ public class ParkingSlot
     public string Row { get; set; }
     public int Column { get; set; }
     public bool HasCharger { get; set; }
-    
-    public ParkingSlot() {}
-
-    public ParkingSlot(int id, string row, int column, bool hasCharger)
-    {
-        Id = id;
-        Row = row;
-        Column = column;
-        HasCharger = hasCharger;
-    }
+    public bool InMaintenance { get; set; }
 }

@@ -3,24 +3,21 @@ using ReservationAPI.Repositories;
 
 namespace ReservationAPI.Services;
 
-public class BookingService : IBookingService
+public class BookingService(IBookingRepository bookingRepository) : IBookingService
 {
-    private readonly IBookingRepository _bookingRepository;
-
     public Task<Booking?> GetBookingByIdAsync(int id)
     {
-        return _bookingRepository.GetBookingByIdAsync(id);
+        return bookingRepository.GetBookingByIdAsync(id);
     }
 
     public Task<List<Booking>> GetBookingsAsync()
     {
-        return _bookingRepository.GetBookingsAsync();
+        return bookingRepository.GetBookingsAsync();
     }
 
     public async Task<List<Booking>> GetBookingsByDateAsync(DateOnly date)
     {
-
-        return await _bookingRepository.GetBookingsByDateAsync(date);
+        return await bookingRepository.GetBookingsByDateAsync(date);
     }
 
     public Task<Booking> CreateBookingAsync(Booking booking)
@@ -30,33 +27,16 @@ public class BookingService : IBookingService
             throw new ArgumentNullException(nameof(booking), "Booking cannot be null");
         }
 
-        return _bookingRepository.CreateBookingAsync(booking);
+        return bookingRepository.CreateBookingAsync(booking);
     }
 
     public Task<Booking> UpdateBookingAsync(Booking booking)
     {
-        return _bookingRepository.UpdateBookingAsync(booking);
+        return bookingRepository.UpdateBookingAsync(booking);
     }
 
     public Task<bool> DeleteBookingAsync(int id)
     {
-        return _bookingRepository.DeleteBookingAsync(id);
+        return bookingRepository.DeleteBookingAsync(id);
     }
-
-    public async Task<List<ParkingSlot>> GetAllParkingSlotsAsync()
-    {
-        
-        return await _bookingRepository.GetAllParkingSlotsAsync();
-    }
-
-    public Task<ParkingSlot?> GetSlotByIdAsync(int id)
-    {
-        return _bookingRepository.GetSlotByIdAsync(id);
-    }
-
-    public Task<List<ParkingSlot>> GetAvailableSlotsAsync(DateOnly date)
-    {
-        return _bookingRepository.GetAvailableSlotsAsync(date);
-    }
-    
 }
