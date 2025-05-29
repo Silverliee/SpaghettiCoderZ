@@ -2,9 +2,14 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Reflection;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ReservationAPI.Infrastructure.Database;
 using ReservationAPI.Repositories;
+using ReservationAPI.Security;
 using ReservationAPI.Services;
 
 namespace ReservationAPI;
@@ -24,11 +29,25 @@ public abstract partial class Program
         var builder = WebApplication.CreateBuilder(args);
         // Configuration de scope
         builder.Services.AddSingleton(new ConcurrentDictionary<string, WebSocket>());
-        builder.Services.AddSingleton<SqLiteDbContext>();
-        builder.Services.AddSingleton<IBookingRepository, BookingRepository>();
-        builder.Services.AddSingleton<IBookingService, BookingService>();
-        builder.Services.AddSingleton<IParkingRepository, ParkingRepository>();
-        builder.Services.AddSingleton<IParkingService, ParkingService>();
+        builder.Services.AddSingleton<SqLiteDbContext>(s => new SqLiteDbContext(builder.Configuration));
+        builder.Services.AddScoped<IBookingRepository, BookingRepository>();
+        builder.Services.AddScoped<IBookingService, BookingService>();
+        builder.Services.AddScoped<IParkingRepository, ParkingRepository>();
+        builder.Services.AddScoped<IParkingService, ParkingService>();
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IUserService, UserService>();
+        builder.Services.AddSingleton<ICryptographer, Cryptographer>();
+        builder.Services.AddDbContext<SqLiteDbContext>();
+        builder.Services.AddIdentityCore<IdentityUser>(options =>
+        {
+            options.SignIn.RequireConfirmedAccount = false;
+            options.User.RequireUniqueEmail = true;
+            options.Password.RequireDigit = false;
+            options.Password.RequiredLength = 6;
+            options.Password.RequireNonAlphanumeric = false;
+            options.Password.RequireUppercase = false;
+            options.Password.RequireLowercase = false;
+        }).AddEntityFrameworkStores<SqLiteDbContext>();
         // Configuration des controllers/endpoints
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddControllers();
@@ -61,8 +80,58 @@ public abstract partial class Program
                     }
                 }
             );
+            
+            options.AddSecurityDefinition(
+                "JWT-BEARER-TOKEN",
+                new OpenApiSecurityScheme
+                {
+                    Description = "Tu peux mettre ton token ici ;) PS: ajoute Bearer suivie d'un espace avant le token",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                }
+            );
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "JWT-BEARER-TOKEN"
+                        }
+                    },
+                    new string[] { }
+                }
+            });
         });
 
+        // Configuration de JWT
+        builder
+            .Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidAudience = builder.Configuration["Jwt:Audience"],
+                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+                    )
+                };
+            });
+        // Configuration de la base de données SQLite
         var app = builder.Build();
         using (var scope = app.Services.CreateScope())
         {
@@ -76,6 +145,9 @@ public abstract partial class Program
         // configure swagger
         app.UseSwagger();
         app.UseSwaggerUI();
+        // configure authentication
+        app.UseAuthentication();
+        app.UseAuthorization();
         // map controllers and run the app
         app.MapControllers();
         app.MapHealthChecks("/health");

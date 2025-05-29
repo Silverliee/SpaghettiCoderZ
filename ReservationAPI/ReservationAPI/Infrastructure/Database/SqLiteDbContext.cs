@@ -3,10 +3,14 @@ using ReservationAPI.Models;
 
 namespace ReservationAPI.Infrastructure.Database;
 
-public class SqLiteDbContext : DbContext
+public class SqLiteDbContext(IConfiguration configuration) : DbContext
 {
     public DbSet<Booking> Bookings { get; set; }
     public DbSet<ParkingSlot> ParkingSlots { get; set; }
+    public DbSet<User> Users { get; set; }
+    
+    protected readonly IConfiguration Configuration = configuration;
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -24,7 +28,6 @@ public class SqLiteDbContext : DbContext
             entity.Property(e => e.Date).IsRequired();
             entity.Property(e => e.SlotId).IsRequired();
             entity.Property(e => e.Status).IsRequired();
-            
         });
 
         modelBuilder.Entity<ParkingSlot>(entity =>
@@ -34,6 +37,16 @@ public class SqLiteDbContext : DbContext
             entity.Property(e => e.Row).IsRequired();
             entity.Property(e => e.HasCharger).IsRequired();
             entity.Property(e => e.InMaintenance);
+        });
+        
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.FirstName).IsRequired();
+            entity.Property(e => e.LastName).IsRequired();
+            entity.Property(e => e.Email).IsRequired();
+            entity.Property(e => e.Password).IsRequired();
+            entity.Property(e => e.Role).IsRequired();
         });
     }
 }
