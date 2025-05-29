@@ -28,6 +28,22 @@ export interface LoginPayload {
 	password: string;
 }
 
+export interface RegisterPayload {
+	firstName: string;
+	lastName: string;
+	email: string;
+	password: string;
+	role: number;
+}
+
+export interface RegisterResponse {
+	firstName: string;
+	lastName: string;
+	email: string;
+	password: string;
+	role: number;
+}
+
 export interface AuthResponse {
 	token: string;
 	user: {

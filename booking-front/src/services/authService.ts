@@ -1,10 +1,29 @@
 import axios from "axios";
-import { LoginPayload, AuthResponse } from "../interface/interface";
+import {
+	LoginPayload,
+	AuthResponse,
+	RegisterPayload,
+	RegisterResponse,
+} from "../interface/interface";
 
-export const login = async (payload: LoginPayload): Promise<AuthResponse> => {
-	const response = await axios.post<AuthResponse>(
-		`${process.env.API_BACK_URL}/login`,
-		payload
-	);
-	return response.data;
-};
+const API_BACK_URL = import.meta.env.VITE_API_BACK_URL;
+
+export default class AuthService {
+	public static async login(payload: LoginPayload): Promise<AuthResponse> {
+		const response = await axios.post<AuthResponse>(
+			`${API_BACK_URL}/User/login`,
+			payload
+		);
+		return response.data;
+	}
+
+	public static async register(
+		payload: RegisterPayload
+	): Promise<RegisterResponse> {
+		const response = await axios.post<RegisterResponse>(
+			`${API_BACK_URL}/User`,
+			payload
+		);
+		return response.data;
+	}
+}

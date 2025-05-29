@@ -11,19 +11,34 @@ import { Label } from "@/components/ui/label";
 
 import BookingService from "@/services/bookingService";
 // import BookingList from "@/components/Booking/BookingList"
-import ParkingSlotList from "@/components/ParkingSlot/ParkingSlotList";
+import ParkingSlotList from "@/components/Parking/ParkingSlotList";
 import { ParkingSlot } from "@/interface/interface";
+import ParkingService from "@/services/parkingService";
+import ParkingMap from "@/components/Parking/ParkingMap";
 
 export default function BookingPage() {
 	const [selectedDate, setSelectedDate] = useState<Date | undefined>(
 		new Date()
 	);
 	const [parkingSlots, setParkingSlots] = useState<ParkingSlot[]>([]);
+	const [user, setUser] = useState(null);
+
+	useEffect(() => {
+		const storedUser = localStorage.getItem("user");
+		if (storedUser) {
+			setUser(JSON.parse(storedUser));
+		}
+	}, []);
 
 	useEffect(() => {
 		if (!selectedDate) return;
+		const localDate = new Date(selectedDate);
+		const utcDate = new Date(
+			localDate.getTime() - localDate.getTimezoneOffset() * 60000
+		);
 
-		BookingService.getParkingStatePerDate(selectedDate)
+		console.log("Fetching parking slots for date:", utcDate);
+		ParkingService.getParkingStatePerDate(utcDate)
 			.then((response) => {
 				console.log("Places disponibles :", response);
 				setParkingSlots(response);
@@ -35,11 +50,16 @@ export default function BookingPage() {
 
 	function handleBookParkingSlot(slotId: string) {
 		if (!selectedDate) return;
+
 		console.log(`Réservation du slot ID: ${slotId}`);
 
 		BookingService.bookParkingSlotPerDate(slotId, selectedDate)
 			.then(() => {
-				setParkingSlots((prev) => prev.filter((slot) => slot.id !== slotId));
+				setParkingSlots((prevSlots) =>
+					prevSlots.map((slot) =>
+						slot.id === slotId ? { ...slot, isBooked: true } : slot
+					)
+				);
 			})
 			.catch((error) =>
 				console.error("Erreur lors de la réservation :", error)
@@ -60,7 +80,6 @@ export default function BookingPage() {
 						<Label className="mb-2 block">Date :</Label>
 						<div className="flex justify-center">
 							<div className="w-fit">
-								<Label className="mb-2 block text-center">Date :</Label>
 								<Calendar
 									mode="single"
 									selected={selectedDate}
@@ -72,7 +91,7 @@ export default function BookingPage() {
 					</div>
 
 					<div>
-						<ParkingSlotList
+						<ParkingMap
 							parkingSlots={parkingSlots}
 							handleBookParkingSlot={handleBookParkingSlot}
 						/>
