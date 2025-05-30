@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace ReservationAPI.Security;
+namespace ReservationAPI.Middlewares.Security;
 
 public class Cryptographer : ICryptographer
 {

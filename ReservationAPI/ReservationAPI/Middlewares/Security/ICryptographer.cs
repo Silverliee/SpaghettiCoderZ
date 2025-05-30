@@ -1,4 +1,4 @@
-namespace ReservationAPI.Security;
+namespace ReservationAPI.Middlewares.Security;
 
 public interface ICryptographer
 {

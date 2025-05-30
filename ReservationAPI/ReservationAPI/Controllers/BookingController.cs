@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ReservationAPI.Models;
 using ReservationAPI.Services;
 
@@ -9,6 +10,7 @@ namespace ReservationAPI.Controllers;
 public class BookingController(IBookingService bookingService) : ControllerBase
 {
     [HttpGet]
+    [Authorize]
     [Produces("application/json")]
     [ProducesResponseType(typeof(List<Booking>), 200)]
     [ProducesResponseType(500)]

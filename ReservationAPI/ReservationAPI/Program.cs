@@ -8,8 +8,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ReservationAPI.Infrastructure.Database;
+using ReservationAPI.Middlewares.Authentication;
+using ReservationAPI.Middlewares.Security;
 using ReservationAPI.Repositories;
-using ReservationAPI.Security;
 using ReservationAPI.Services;
 
 namespace ReservationAPI;
@@ -38,19 +39,11 @@ public abstract partial class Program
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddSingleton<ICryptographer, Cryptographer>();
         builder.Services.AddDbContext<SqLiteDbContext>();
-        builder.Services.AddIdentityCore<IdentityUser>(options =>
-        {
-            options.SignIn.RequireConfirmedAccount = false;
-            options.User.RequireUniqueEmail = true;
-            options.Password.RequireDigit = false;
-            options.Password.RequiredLength = 6;
-            options.Password.RequireNonAlphanumeric = false;
-            options.Password.RequireUppercase = false;
-            options.Password.RequireLowercase = false;
-        }).AddEntityFrameworkStores<SqLiteDbContext>();
         // Configuration des controllers/endpoints
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddControllers();
+        // Configuration de l'authentification JWT
+        builder.Services.AddSingleton<AuthenticationMiddleware>();
         // Configuration du health check
         builder.Services.AddHealthChecks();
         // Configuration de CORS
@@ -80,9 +73,9 @@ public abstract partial class Program
                     }
                 }
             );
-            
+
             options.AddSecurityDefinition(
-                "JWT-BEARER-TOKEN",
+                JwtBearerDefaults.AuthenticationScheme,
                 new OpenApiSecurityScheme
                 {
                     Description = "Tu peux mettre ton token ici ;) PS: ajoute Bearer suivie d'un espace avant le token",
@@ -101,7 +94,7 @@ public abstract partial class Program
                         Reference = new OpenApiReference
                         {
                             Type = ReferenceType.SecurityScheme,
-                            Id = "JWT-BEARER-TOKEN"
+                            Id = JwtBearerDefaults.AuthenticationScheme
                         }
                     },
                     new string[] { }
@@ -110,27 +103,23 @@ public abstract partial class Program
         });
 
         // Configuration de JWT
+        builder.Services.AddAuthorization();
         builder
-            .Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
+            .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidAudience = builder.Configuration["Jwt:Audience"],
-                    ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
-                    )
-                };
+               options.RequireHttpsMetadata = false;
+               options.TokenValidationParameters = new TokenValidationParameters
+               {
+                   ValidateIssuerSigningKey = true,
+                   IssuerSigningKey = new SymmetricSecurityKey(
+                       Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
+                   ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                   ValidAudience = builder.Configuration["Jwt:Audience"],
+                   ClockSkew = TimeSpan.Zero
+               };
             });
+
         // Configuration de la base de données SQLite
         var app = builder.Build();
         using (var scope = app.Services.CreateScope())

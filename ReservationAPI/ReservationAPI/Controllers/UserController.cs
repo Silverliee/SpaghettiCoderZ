@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using ReservationAPI.Models;
+using ReservationAPI.Models.DTO;
 using ReservationAPI.Services;
 
 namespace ReservationAPI.Controllers;
@@ -8,39 +8,33 @@ namespace ReservationAPI.Controllers;
 [Route("[controller]")]
 public class UserController(IUserService userService) : ControllerBase
 {
-    [HttpGet("{id}")]
-    public async Task<IActionResult> Get(int id)
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(RegisteringRequest registeringRequest)
     {
-        var user = await userService.GetUserByIdAsync(id);
-        if (user == null)
+        if (string.IsNullOrEmpty(registeringRequest.Email) || string.IsNullOrEmpty(registeringRequest.Password))
         {
-            return NotFound("User not found");
+            return BadRequest("User data is invalid");
         }
 
-        return Ok(user);
-    }
-    
-    [HttpPost]
-    public async Task<IActionResult> Post([FromBody] User? user)
-    {
-        if (user == null)
+        var registeringResponse = await userService.RegisterUserAsync(registeringRequest);
+
+        if (!registeringResponse.IsRegistered)
         {
-            return BadRequest("User data is required");
+            return BadRequest("User registration failed");
         }
 
-        var createdUser = await userService.RegisterUserAsync(user);
-        return CreatedAtAction(nameof(Get), new { id = createdUser.Id }, createdUser);
+        return Ok(registeringResponse);
     }
-    
+
     [HttpPost("login")]
-    public async Task<IActionResult> Login(string email, string password)
+    public async Task<IActionResult> Login(AuthenticationRequest request)
     {
-        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+        if (string.IsNullOrEmpty(request.Email) || string.IsNullOrEmpty(request.Password))
         {
             return BadRequest("Email and password are required");
         }
 
-        var loggedInUser = await userService.LoginUserAsync(email, password);
+        var loggedInUser = await userService.LoginUserAsync(request);
         if (loggedInUser == null)
         {
             return Unauthorized("Invalid credentials");
