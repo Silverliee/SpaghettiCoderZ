@@ -29,6 +29,7 @@ export function LoginForm({
 		e.preventDefault();
 		try {
 			login({ email, password });
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 			navigate("/booking");
 		} catch (err) {
 			// console.error("Login failed:", err);

@@ -27,7 +27,7 @@ export default function ParkingMap({
 								return <div key={`${row}-${col}`} className="w-12 h-12" />;
 
 							//const isMine = slot.userId === user.userId;
-							const isMine = slot.userId === "me";
+							const isMine = slot.userId === user?.userId;
 							const label = `${row}${col}`;
 							const isDisabled =
 								hasAlreadyBooked || slot.isBooked || slot.inMaintenance;

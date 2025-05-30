@@ -10,7 +10,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 
 import BookingService from "@/services/bookingService";
-import { BookingStatus, ParkingSlot } from "@/interface/interface";
+import { BookingStatus, ParkingSlot, UserRole } from "@/interface/interface";
 import ParkingService from "@/services/parkingService";
 import ParkingMap from "@/components/Parking/ParkingMap";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,7 +25,7 @@ export default function BookingPage() {
 		useState<number>(0);
 
 	const { user } = useAuth();
-	const MAX_QUOTA_BOOKINGS = user?.role === "USER" ? 5 : 30;
+	const MAX_QUOTA_BOOKINGS = user?.role === UserRole.USER ? 5 : 30;
 
 	useEffect(() => {
 		if (user) {
@@ -36,71 +36,9 @@ export default function BookingPage() {
 				);
 				setNumberOfCurrentBookings(currentBookings.length);
 			});
-		} else {
-			const fakeBookings = [
-				{
-					id: "1",
-					slotId: "A1",
-					date: "2023-10-01T00:00:00",
-					status: 3,
-					userId: "me",
-				},
-				{
-					id: "2",
-					slotId: "A2",
-					date: "2023-10-02T00:00:00",
-					status: 1,
-					userId: "me",
-				},
-				{
-					id: "3",
-					slotId: "A3",
-					date: "2023-10-03T00:00:00",
-					status: 2,
-					userId: "me",
-				},
-				{
-					id: "4",
-					slotId: "A3",
-					date: "2023-10-04T00:00:00",
-					status: 0,
-					userId: "me",
-				},
-				{
-					id: "5",
-					slotId: "A1",
-					date: "2026-10-01T00:00:00",
-					status: 3,
-					userId: "me",
-				},
-				{
-					id: "6",
-					slotId: "A2",
-					date: "2026-10-02T00:00:00",
-					status: 1,
-					userId: "me",
-				},
-				{
-					id: "7",
-					slotId: "A3",
-					date: "2026-10-03T00:00:00",
-					status: 2,
-					userId: "me",
-				},
-				{
-					id: "8",
-					slotId: "A3",
-					date: "2026-10-04T00:00:00",
-					status: 0,
-					userId: "me",
-				},
-			];
-
-			const currentBookings = fakeBookings.filter(
-				(booking) => booking.status === BookingStatus.BOOKED
-			);
-			setNumberOfCurrentBookings(currentBookings.length);
 		}
+		console.log("MAX_QUOTA_BOOKINGS" + MAX_QUOTA_BOOKINGS);
+		console.log("user role: " + user?.role);
 	}, [user]);
 
 	useEffect(() => {
@@ -108,18 +46,12 @@ export default function BookingPage() {
 	}, [numberOfCurrentBookings]);
 
 	useEffect(() => {
-		if (!user) {
-			const storedUser = localStorage.getItem("user");
-			if (storedUser) {
-				setUser(JSON.parse(storedUser));
-			}
-		}
 		const userHasABookingOnThisDate = parkingSlots.some(
 			(slot) =>
 				slot.isBooked &&
 				typeof slot.userId !== "undefined" &&
 				//slot?.userId === user?.id
-				slot?.userId === "me"
+				slot?.userId === user?.userId
 		);
 		setHasAlreadyBooked(userHasABookingOnThisDate);
 	}, [parkingSlots]);
@@ -134,23 +66,6 @@ export default function BookingPage() {
 		console.log("Fetching parking slots for date:", utcDate);
 		ParkingService.getParkingStatePerDate(utcDate)
 			.then((response) => {
-				//console.log("Places disponibles :", response);
-				// const fakeResponse = response.map((slot) => {
-				// 	if (slot.id == 1) {
-				// 		return {
-				// 			id: 1,
-				// 			row: "A",
-				// 			bookingId: 1,
-				// 			column: 1,
-				// 			hasCharger: true,
-				// 			inMaintenance: false,
-				// 			isBooked: true,
-				// 			userId: "me",
-				// 		};
-				// 	} else {
-				// 		return slot;
-				// 	}
-				// });
 				setParkingSlots(response);
 			})
 			.catch((error) =>
@@ -165,8 +80,8 @@ export default function BookingPage() {
 			localDate.getTime() - localDate.getTimezoneOffset() * 60000
 		);
 		console.log(`Réservation du slot ID: ${slotId}`);
-
-		BookingService.bookParkingSlotPerDate(slotId, utcDate)
+		console.log("User ID:", user);
+		BookingService.bookParkingSlotPerDate(slotId, utcDate, user?.userId)
 			.then(() => {
 				setParkingSlots((prevSlots) =>
 					prevSlots.map((slot) =>

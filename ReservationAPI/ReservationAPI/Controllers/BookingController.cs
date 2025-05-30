@@ -10,7 +10,6 @@ namespace ReservationAPI.Controllers;
 public class BookingController(IBookingService bookingService) : ControllerBase
 {
     [HttpGet]
-    [Authorize]
     [Produces("application/json")]
     [ProducesResponseType(typeof(List<Booking>), 200)]
     [ProducesResponseType(500)]

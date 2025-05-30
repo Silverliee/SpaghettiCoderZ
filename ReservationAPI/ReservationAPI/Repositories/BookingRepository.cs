@@ -46,10 +46,17 @@ public class BookingRepository(SqLiteDbContext dbContext) : IBookingRepository
 
     public Task<List<Booking>> GetBookingsByDateAsync(DateOnly date)
     {
-        return Task.FromResult(dbContext.Bookings.Where(b => b.Date == date.ToDateTime(TimeOnly.MinValue))
-            .OrderBy(b => b.Date)
-            .ToList());
+        var startOfDay = date.ToDateTime(TimeOnly.MinValue); // 2025-05-30T00:00:00
+        var endOfDay = date.ToDateTime(TimeOnly.MaxValue);   // 2025-05-30T23:59:59.9999999
+
+        return Task.FromResult(
+            dbContext.Bookings
+                .Where(b => b.Date >= startOfDay && b.Date <= endOfDay)
+                .OrderBy(b => b.Date)
+                .ToList()
+        );
     }
+
 
     public async Task<List<Booking>> GetBookingsByUserIdAsync(int userId)
     {

@@ -5,13 +5,15 @@ import AxiosInstance from "@/services/AxiosInstance";
 export default class BookingService {
 	public static async bookParkingSlotPerDate(
 		parkingSlotId: string,
-		date: Date
+		date: Date,
+		userId: number
 	) {
 		console.log(`Booking parking slot ${parkingSlotId} for date ${date}`);
 		const response = await AxiosInstance.post(`/Booking`, {
 			slotId: parkingSlotId,
 			date: formatDate(date),
 			status: BookingStatus.BOOKED,
+			userId,
 		});
 
 		return response.data;
@@ -56,19 +58,6 @@ export default class BookingService {
 		console.log(`Deleteing booking ${bookingId}`);
 		const response = await AxiosInstance.delete(`/Booking/${bookingId}`);
 		return response.data;
-	}
-	public static async getParkingStatePerDate(
-		date: Date
-	): Promise<ParkingSlot[]> {
-		// get all parking slots (parking) and all bookings for a specific date
-		console.log(`Requesting parking state for date ${formatDate(date)}`);
-		//AxiosInstance.get(`/Reservation`);
-		return [
-			{
-				id: "1",
-				hasCharger: true,
-			},
-		];
 	}
 	public static async getBookingsPerDate(date: Date): Promise<Booking[]> {
 		console.log(`Requesting bookings for date ${formatDate(date)}`);

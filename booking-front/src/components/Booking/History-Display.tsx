@@ -9,11 +9,7 @@ import HistoryBookingItem from "./history-booking-item";
 export default function HistoryDisplay() {
 	const [bookings, setBookings] = useState([]);
 
-	//const { user } = useAuth();
-
-	const user = {
-		userId: "12345", // Mock user ID for demonstration purposes
-	};
+	const { user } = useAuth();
 
 	const fakeBookings = [
 		{ id: "1", slotId: "A1", date: "2023-10-01T00:00:00", status: 3 },
