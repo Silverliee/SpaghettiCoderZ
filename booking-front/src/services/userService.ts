@@ -12,4 +12,9 @@ export default class UserService {
 
 		console.log(`Booking parking slot ${parkingSlotId} for date ${date}`);
 	}
+
+	public static async getAll() {
+		const response = await AxiosInstance.get("/User");
+		return response.data;
+	}
 }

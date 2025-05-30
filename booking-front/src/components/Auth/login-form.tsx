@@ -28,8 +28,9 @@ export function LoginForm({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		try {
-			login({ email, password });
+			const response = login({ email, password });
 			await new Promise((resolve) => setTimeout(resolve, 1000));
+			console.log("Login successful:", response);
 			navigate("/booking");
 		} catch (err) {
 			// console.error("Login failed:", err);

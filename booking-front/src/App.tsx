@@ -10,6 +10,7 @@ import WithoutHeaderLayout from "./components/ui/without-header-layout";
 import ProtectedRoute from "./ProtectedRoute";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import { UserRole } from "./interface/interface";
+import StatisTicsPage from "./pages/StatisticsPage";
 
 function App() {
 	return (
@@ -20,11 +21,10 @@ function App() {
 			</Route>
 
 			<Route element={<WithHeaderLayout />}>
-				<Route
-					element={
-						<ProtectedRoute allowedRoles={[UserRole.MANAGER, UserRole.USER]} />
-					}
-				>
+				<Route element={<ProtectedRoute allowedRoles={[UserRole.USER]} />}>
+					<Route element={<ProtectedRoute allowedRoles={[UserRole.MANAGER]} />}>
+						<Route path="/statistics" element={<StatisTicsPage />} />
+					</Route>
 					<Route path="/unauthorized" element={<UnauthorizedPage />} />
 					<Route path="/Booking" element={<BookingPage />} />
 					<Route path="/History" element={<HistoryPage />} />

@@ -55,7 +55,7 @@ export default class BookingService {
 		return response.data;
 	}
 	public static async deleteBooking(bookingId: string): Promise<Booking> {
-		console.log(`Deleteing booking ${bookingId}`);
+		console.log(`Deleting booking ${bookingId}`);
 		const response = await AxiosInstance.delete(`/Booking/${bookingId}`);
 		return response.data;
 	}

@@ -7,6 +7,8 @@ import {
 	DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { UserRole } from "@/interface/interface";
 
 export default function Header() {
 	const navigate = useNavigate();
@@ -15,6 +17,9 @@ export default function Header() {
 		localStorage.removeItem("user");
 		navigate("/");
 	};
+
+	const { user } = useAuth();
+	const userRole = user?.role;
 
 	return (
 		<header className="relative flex items-center justify-center px-6 py-4 bg-black text-white shadow-md">
@@ -36,6 +41,11 @@ export default function Header() {
 						<DropdownMenuItem onClick={() => navigate("/history")}>
 							Historique des réservations
 						</DropdownMenuItem>
+						{userRole !== UserRole.MANAGER && (
+							<DropdownMenuItem onClick={() => navigate("/statistics")}>
+								Statistiques
+							</DropdownMenuItem>
+						)}
 						<DropdownMenuItem onClick={handleLogout}>
 							Déconnexion
 						</DropdownMenuItem>

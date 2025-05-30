@@ -11,8 +11,6 @@ export default class ParkingService {
 	public static async getParkingStatePerDate(date: Date) {
 		const parking = await this.getParking();
 		const bookings = await BookingService.getBookingsPerDate(date);
-		console.log("Bookings for date:", bookings);
-		console.log("Parking for date:", parking);
 		const parkingSlots = parking.map((slot) => {
 			const booking = bookings.find(
 				(booking) => booking.slotId === Number(slot.id)
@@ -20,9 +18,6 @@ export default class ParkingService {
 			const status = booking?.status;
 			const bookingId = booking?.id;
 			const userId = booking?.userId;
-			console.log(
-				`Slot ${slot.id} - Booking ID: ${bookingId}, User ID: ${userId}, Status: ${status}`
-			);
 			return {
 				...slot,
 				isBooked: status == BookingStatus.BOOKED,

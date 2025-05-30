@@ -30,7 +30,6 @@ export default function BookingPage() {
 	useEffect(() => {
 		if (user) {
 			BookingService.getBookingsByUserId(user.userId).then((bookings) => {
-				console.log("Current bookings:", bookings);
 				const currentBookings = bookings.filter(
 					(booking) => booking.status === BookingStatus.BOOKED
 				);
@@ -46,7 +45,6 @@ export default function BookingPage() {
 	}, [numberOfCurrentBookings]);
 
 	useEffect(() => {
-		console.log("parkingSlots:", parkingSlots);
 		const userHasABookingOnThisDate = parkingSlots.some(
 			(slot) =>
 				slot.isBooked &&
@@ -80,11 +78,8 @@ export default function BookingPage() {
 		const utcDate = new Date(
 			localDate.getTime() - localDate.getTimezoneOffset() * 60000
 		);
-		console.log(`Réservation du slot ID: ${slotId}`);
-		console.log("User ID:", user);
 		BookingService.bookParkingSlotPerDate(slotId, utcDate, user?.userId)
 			.then(() => {
-				console.log("coucou");
 				setParkingSlots((prevSlots) =>
 					prevSlots.map((slot) =>
 						slot.id === slotId
@@ -92,6 +87,9 @@ export default function BookingPage() {
 							: slot
 					)
 				);
+				setNumberOfCurrentBookings((previous) => {
+					return previous + 1;
+				});
 				setHasAlreadyBooked(true);
 			})
 			.catch((error) =>
