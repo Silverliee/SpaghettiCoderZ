@@ -8,7 +8,7 @@ public class BookingRepository(SqLiteDbContext dbContext) : IBookingRepository
 {
     public async Task<List<Booking>> GetBookingsAsync()
     {
-        return await dbContext.Bookings.OrderBy(u=> u.Date).ToListAsync();
+        return await dbContext.Bookings.OrderBy(u => u.Date).ToListAsync();
     }
 
     public async Task<Booking?> GetBookingByIdAsync(int id)
@@ -49,5 +49,13 @@ public class BookingRepository(SqLiteDbContext dbContext) : IBookingRepository
         return Task.FromResult(dbContext.Bookings.Where(b => b.Date == date.ToDateTime(TimeOnly.MinValue))
             .OrderBy(b => b.Date)
             .ToList());
+    }
+
+    public async Task<List<Booking>> GetBookingsByUserIdAsync(int userId)
+    {
+        return await dbContext.Bookings
+            .Where(b => b.UserId == userId)
+            .OrderBy(b => b.Date)
+            .ToListAsync();
     }
 }

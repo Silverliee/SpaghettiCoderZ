@@ -64,6 +64,27 @@ public class BookingController(IBookingService bookingService) : ControllerBase
         }
     }
 
+    [HttpGet("user/{userId:int}")]
+    [Produces("application/json")]
+    [ProducesResponseType(typeof(List<Booking>), 200)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> GetByUserId(int userId)
+    {
+        try
+        {
+            var bookings = await bookingService.GetBookingsByUserIdAsync(userId);
+            if (bookings == null || !bookings.Any())
+            {
+                return NotFound($"No bookings found for user with ID {userId}.");
+            }
+            return Ok(bookings);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    
 
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] Booking? booking)

@@ -68,4 +68,9 @@ public class UserService(IUserRepository userRepository, AuthenticationMiddlewar
     {
         throw new NotImplementedException();
     }
+
+    public Task<User?> GetUserByIdAsync(int userId)
+    {
+        return userRepository.GetUserByIdAsync(userId);
+    }
 }

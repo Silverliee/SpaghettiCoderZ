@@ -10,4 +10,5 @@ public interface IBookingRepository
     Task<Booking> UpdateBookingAsync(Booking booking);
     Task<bool> DeleteBookingAsync(int id);
     Task<List<Booking>> GetBookingsByDateAsync(DateOnly date);
+    Task<List<Booking>> GetBookingsByUserIdAsync(int userId);
 }

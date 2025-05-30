@@ -27,6 +27,7 @@ public class SqLiteDbContext(IConfiguration configuration) : DbContext
             entity.HasKey(e => e.Id);
             entity.Property(e => e.Date).IsRequired();
             entity.Property(e => e.SlotId).IsRequired();
+            entity.Property(e => e.UserId).IsRequired();
             entity.Property(e => e.Status).IsRequired();
         });
 
