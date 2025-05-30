@@ -4,6 +4,7 @@ using System.Net.WebSockets;
 using System.Reflection;
 using Microsoft.OpenApi.Models;
 using ReservationAPI.Infrastructure.Database;
+using ReservationAPI.Middlewares.Communication;
 using ReservationAPI.Middlewares.Security;
 using ReservationAPI.Repositories;
 using ReservationAPI.Services;
@@ -34,6 +35,7 @@ public abstract partial class Program
         builder.Services.AddScoped<IBookingService, BookingService>();
         builder.Services.AddScoped<IStatisticService, StatisticService>();
         builder.Services.AddSingleton<ICryptographer, Cryptographer>();
+        builder.Services.AddSingleton<IMessaging, Messaging>();
         builder.Services.AddDbContext<SqLiteDbContext>();
         
         // Configuration des controllers/endpoints

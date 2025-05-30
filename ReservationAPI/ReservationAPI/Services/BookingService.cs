@@ -1,10 +1,11 @@
+using ReservationAPI.Middlewares.Communication;
 using ReservationAPI.Models;
 using ReservationAPI.Models.DTO.Booking;
 using ReservationAPI.Repositories;
 
 namespace ReservationAPI.Services;
 
-public class BookingService(IBookingRepository bookingRepository, IUserService userService) : IBookingService
+public class BookingService(IBookingRepository bookingRepository, IUserService userService,IMessaging messaging) : IBookingService
 {
     public Task<Booking?> GetBookingByIdAsync(int id)
     {
@@ -39,7 +40,8 @@ public class BookingService(IBookingRepository bookingRepository, IUserService u
         }
 
         await ValidateBookingAsync(booking);
-    
+        messaging.SendMessage($"New booking created for user {booking.UserId} on {booking.Date}");
+        
         return await bookingRepository.CreateBookingAsync(booking);
     }
 
