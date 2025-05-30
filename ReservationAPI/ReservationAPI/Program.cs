@@ -2,13 +2,8 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Net.WebSockets;
 using System.Reflection;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ReservationAPI.Infrastructure.Database;
-using ReservationAPI.Middlewares.Authentication;
 using ReservationAPI.Middlewares.Security;
 using ReservationAPI.Repositories;
 using ReservationAPI.Services;
@@ -34,7 +29,6 @@ public abstract partial class Program
         builder.Services.AddScoped<IBookingRepository, BookingRepository>();
         builder.Services.AddScoped<IParkingRepository, ParkingRepository>();
         builder.Services.AddScoped<IUserRepository, UserRepository>();
-        
         builder.Services.AddScoped<IParkingService, ParkingService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<IBookingService, BookingService>();
@@ -45,10 +39,6 @@ public abstract partial class Program
         // Configuration des controllers/endpoints
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddControllers();
-        // Configuration de l'authentification JWT
-        builder.Services.AddSingleton<AuthenticationMiddleware>();
-        // Configuration du health check
-        builder.Services.AddHealthChecks();
         // Configuration de CORS
         builder.Services.AddCors(options =>
         {
@@ -76,52 +66,7 @@ public abstract partial class Program
                     }
                 }
             );
-
-            options.AddSecurityDefinition(
-                JwtBearerDefaults.AuthenticationScheme,
-                new OpenApiSecurityScheme
-                {
-                    Description = "Tu peux mettre ton token ici ;) PS: ajoute Bearer suivie d'un espace avant le token",
-                    Name = "Authorization",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer"
-                }
-            );
-
-            options.AddSecurityRequirement(new OpenApiSecurityRequirement
-            {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = JwtBearerDefaults.AuthenticationScheme
-                        }
-                    },
-                    new string[] { }
-                }
-            });
         });
-
-        // Configuration de JWT
-        builder.Services.AddAuthorization();
-        builder
-            .Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-               options.RequireHttpsMetadata = false;
-               options.TokenValidationParameters = new TokenValidationParameters
-               {
-                   ValidateIssuerSigningKey = true,
-                   IssuerSigningKey = new SymmetricSecurityKey(
-                       Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)),
-                   ValidIssuer = builder.Configuration["Jwt:Issuer"],
-                   ValidAudience = builder.Configuration["Jwt:Audience"],
-                   ClockSkew = TimeSpan.Zero
-               };
-            });
 
         // Configuration de la base de données SQLite
         var app = builder.Build();
@@ -137,12 +82,8 @@ public abstract partial class Program
         // configure swagger
         app.UseSwagger();
         app.UseSwaggerUI();
-        // configure authentication
-        app.UseAuthentication();
-        app.UseAuthorization();
         // map controllers and run the app
         app.MapControllers();
-        app.MapHealthChecks("/health");
         app.Run();
     }
 }

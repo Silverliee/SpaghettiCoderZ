@@ -7,6 +7,5 @@ public interface IUserService
 {
     public Task<RegisteringResponse> RegisterUserAsync(RegisteringRequest registeringRequest);
     public Task<AuthenticationResponse?> LoginUserAsync(AuthenticationRequest request);
-    public Task<LogoutResponse> LogoutUserAsync(LogoutRequest request);
     public Task<User?> GetUserByIdAsync(int userId);
 }

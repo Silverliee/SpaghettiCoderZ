@@ -1,4 +1,3 @@
-using ReservationAPI.Middlewares.Authentication;
 using ReservationAPI.Middlewares.Security;
 using ReservationAPI.Models;
 using ReservationAPI.Models.DTO;
@@ -6,8 +5,7 @@ using ReservationAPI.Repositories;
 
 namespace ReservationAPI.Services;
 
-public class UserService(IUserRepository userRepository, AuthenticationMiddleware authenticationMiddleware,
-    ICryptographer cryptographer) : IUserService
+public class UserService(IUserRepository userRepository, ICryptographer cryptographer) : IUserService
 {
     public async Task<RegisteringResponse> RegisterUserAsync(RegisteringRequest registeringRequest)
     {
@@ -48,12 +46,10 @@ public class UserService(IUserRepository userRepository, AuthenticationMiddlewar
             {
                 return null;
             }
-            var token = authenticationMiddleware.GenerateJwtToken(user.Id);
             var result = new AuthenticationResponse
             {
                 UserId = user.Id,
-                Token = token,
-                Expiration = DateTime.UtcNow.AddDays(1)
+                Role = user.Role
             };
             return result;
         }
@@ -63,12 +59,7 @@ public class UserService(IUserRepository userRepository, AuthenticationMiddlewar
             throw;
         }
     }
-
-    public Task<LogoutResponse> LogoutUserAsync(LogoutRequest request)
-    {
-        throw new NotImplementedException();
-    }
-
+    
     public Task<User?> GetUserByIdAsync(int userId)
     {
         return userRepository.GetUserByIdAsync(userId);
