@@ -2,8 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ReservationAPI.Models.DTO.Register;
 
-public class RegisteringRequest
+public class RegisteredBySecretaryRequest
 {
+    public required int SecretaryId { get; set; }
+    
     public UserRole Role { get; set; }
 
     [Required(ErrorMessage = "User Firstname is required")]

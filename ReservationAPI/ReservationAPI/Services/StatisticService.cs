@@ -1,5 +1,6 @@
 using ReservationAPI.Models;
 using ReservationAPI.Models.DTO;
+using ReservationAPI.Models.DTO.Statistics;
 using ReservationAPI.Repositories;
 
 namespace ReservationAPI.Services;

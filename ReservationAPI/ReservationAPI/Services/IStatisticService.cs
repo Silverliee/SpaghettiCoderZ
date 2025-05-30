@@ -1,4 +1,5 @@
 using ReservationAPI.Models.DTO;
+using ReservationAPI.Models.DTO.Statistics;
 
 namespace ReservationAPI.Services;
 

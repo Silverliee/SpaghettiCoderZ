@@ -23,12 +23,6 @@ public class UserRepository(SqLiteDbContext dbContext) : IUserRepository
         return Task.FromResult(user);
     }
 
-    public Task<User?> LoginUserAsync(string email, string password)
-    {
-        var user = dbContext.Users.FirstOrDefault(u => u.Email == email && u.Password == password);
-        return Task.FromResult(user);
-    }
-
     public Task<User> UpdateUserAsync(User user)
     {
         dbContext.Users.Update(user);

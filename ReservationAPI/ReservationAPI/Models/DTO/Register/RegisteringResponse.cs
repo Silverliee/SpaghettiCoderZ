@@ -1,4 +1,4 @@
-namespace ReservationAPI.Models.DTO;
+namespace ReservationAPI.Models.DTO.Register;
 
 public class RegisteringResponse
 {

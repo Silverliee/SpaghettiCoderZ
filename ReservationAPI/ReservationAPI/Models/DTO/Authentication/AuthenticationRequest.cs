@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ReservationAPI.Models.DTO;
+namespace ReservationAPI.Models.DTO.Authentication;
 
 public class AuthenticationRequest
 {

@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ReservationAPI.Models.DTO;
+using ReservationAPI.Models.DTO.Authentication;
+using ReservationAPI.Models.DTO.Register;
 using ReservationAPI.Services;
 
 namespace ReservationAPI.Controllers;
@@ -57,5 +59,22 @@ public class UserController(IUserService userService) : ControllerBase
         }
 
         return Ok(loggedInUser);
+    }
+    
+    [HttpPost("register/secretary")]
+    public async Task<IActionResult> RegisterForSecretary(RegisteredBySecretaryRequest registeringRequest)
+    {
+        if (string.IsNullOrEmpty(registeringRequest.Email) || string.IsNullOrEmpty(registeringRequest.Password))
+        {
+            return BadRequest("User data is invalid");
+        }
+
+        var registeringResponse = await userService.RegisterUserForSecretaryAsync(registeringRequest);
+
+        if (!registeringResponse.IsRegistered)
+        {
+            return BadRequest("User registration failed");
+        }
+        return Ok(registeringResponse);
     }
 }

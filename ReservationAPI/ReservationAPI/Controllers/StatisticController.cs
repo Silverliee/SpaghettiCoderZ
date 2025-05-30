@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using ReservationAPI.Models.DTO;
+using ReservationAPI.Models.DTO.Statistics;
 using ReservationAPI.Services;
 
 namespace ReservationAPI.Controllers;
