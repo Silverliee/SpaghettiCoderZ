@@ -4,6 +4,16 @@
 
 [https://github.com/Silverliee/SpaghettiCoderZ](https://github.com/Silverliee/SpaghettiCoderZ)
 
+## How to run
+
+### Using docker-compose :
+
+Simply run "docker-compose up" in the project's root directory.
+
+The flag "-d" can be used to run the containers as detached like "docker-compose up -d".
+
+The docker-compose's file path can also be specified with "docker-compose -f /path/to/docker-compose.yaml"
+
 ## Business Need
 
 Reserve and manage our parking spaces
@@ -54,8 +64,6 @@ Fast to develop (time constraint), accessible via all devices especially phone, 
 - Create, modify, or cancel a reservation
 - Get statistics on reservations
 - Notify users
-
- 
 
 ## C4 driagram :
 

@@ -3,6 +3,8 @@ services:
     build:
       context: ./booking-front
       dockerfile: Dockerfile
+    volumes:
+      - sqlite_db:/app/Infrastructure
     ports:
       - "3000:3000"
     environment:
@@ -27,3 +29,6 @@ services:
 networks:
   reservation-network:
     driver: bridge
+
+volumes:
+  sqlite_db:
