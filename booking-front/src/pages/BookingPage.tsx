@@ -25,7 +25,7 @@ export default function BookingPage() {
 		useState<number>(0);
 
 	const { user } = useAuth();
-	const MAX_QUOTA_BOOKINGS = user?.role === UserRole.USER ? 5 : 30;
+	const MAX_QUOTA_BOOKINGS = user?.role === UserRole.MANAGER ? 30 : 5;
 
 	useEffect(() => {
 		if (user) {
@@ -46,6 +46,7 @@ export default function BookingPage() {
 	}, [numberOfCurrentBookings]);
 
 	useEffect(() => {
+		console.log("parkingSlots:", parkingSlots);
 		const userHasABookingOnThisDate = parkingSlots.some(
 			(slot) =>
 				slot.isBooked &&
@@ -83,11 +84,15 @@ export default function BookingPage() {
 		console.log("User ID:", user);
 		BookingService.bookParkingSlotPerDate(slotId, utcDate, user?.userId)
 			.then(() => {
+				console.log("coucou");
 				setParkingSlots((prevSlots) =>
 					prevSlots.map((slot) =>
-						slot.id === slotId ? { ...slot, isBooked: true } : slot
+						slot.id === slotId
+							? { ...slot, isBooked: true, userId: user.userId }
+							: slot
 					)
 				);
+				setHasAlreadyBooked(true);
 			})
 			.catch((error) =>
 				console.error("Erreur lors de la réservation :", error)
@@ -131,7 +136,10 @@ export default function BookingPage() {
 						<ParkingMap
 							parkingSlots={parkingSlots}
 							handleBookParkingSlot={handleBookParkingSlot}
-							hasAlreadyBooked={hasAlreadyBooked}
+							hasAlreadyBooked={
+								hasAlreadyBooked ||
+								numberOfCurrentBookings === MAX_QUOTA_BOOKINGS
+							}
 						/>
 					</div>
 				</CardContent>

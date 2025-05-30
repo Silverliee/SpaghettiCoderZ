@@ -12,13 +12,22 @@ export default class ParkingService {
 		const parking = await this.getParking();
 		const bookings = await BookingService.getBookingsPerDate(date);
 		console.log("Bookings for date:", bookings);
+		console.log("Parking for date:", parking);
 		const parkingSlots = parking.map((slot) => {
-			const booking = bookings.find((booking) => booking.slotId === slot.id);
+			const booking = bookings.find(
+				(booking) => booking.slotId === Number(slot.id)
+			);
+			const status = booking?.status;
+			const bookingId = booking?.id;
+			const userId = booking?.userId;
+			console.log(
+				`Slot ${slot.id} - Booking ID: ${bookingId}, User ID: ${userId}, Status: ${status}`
+			);
 			return {
 				...slot,
-				isBooked: !!(booking?.status === BookingStatus.BOOKED),
-				bookingId: booking ? booking.id : null,
-				userId: booking ? booking.userId : null,
+				isBooked: status == BookingStatus.BOOKED,
+				bookingId,
+				userId,
 			};
 		});
 		console.log("ParkingSlots for date:", parkingSlots);
