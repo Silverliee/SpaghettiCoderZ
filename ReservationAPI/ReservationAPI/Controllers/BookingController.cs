@@ -169,6 +169,30 @@ public class BookingController(IBookingService bookingService) : ControllerBase
         }
     }
     
+    [HttpPut("secretary/{id:int}")]
+    public async Task<IActionResult> PutBySecretary(int id, [FromBody] BookingBySecretaryRequest? bookingRequest)
+    {
+        if (bookingRequest == null)
+        {
+            return BadRequest("Booking request cannot be null.");
+        }
+        try
+        {
+            var existingBooking = await bookingService.GetBookingByIdAsync(id);
+            if (existingBooking == null)
+            {
+                return NotFound($"Booking with ID {id} not found.");
+            }
+            bookingRequest.Booking.Id = id;
+            var updatedBooking = await bookingService.UpdateBookingBySecretaryAsync(bookingRequest);
+            return Ok(updatedBooking);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
@@ -180,6 +204,29 @@ public class BookingController(IBookingService bookingService) : ControllerBase
                 return NotFound($"Booking with ID {id} not found.");
             }
             await bookingService.DeleteBookingAsync(id);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    
+    [HttpDelete("secretary/{id:int}")]
+    public async Task<IActionResult> DeleteBySecretary(int id, [FromQuery] int secretaryId)
+    {
+        try
+        {
+            var existingBooking = await bookingService.GetBookingByIdAsync(id);
+            if (existingBooking == null)
+            {
+                return NotFound($"Booking with ID {id} not found.");
+            }
+            var result = await bookingService.DeleteBookingBySecretaryAsync(id, secretaryId);
+            if (!result)
+            {
+                return BadRequest("Failed to delete booking. Secretary may not have permission.");
+            }
             return Ok();
         }
         catch (Exception ex)

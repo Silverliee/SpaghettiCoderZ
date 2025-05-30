@@ -13,6 +13,8 @@ public interface IBookingService
     Task<Booking> CreateBookingAsync(Booking booking);
     Task<Booking> CreateBookingBySecretaryAsync(BookingBySecretaryRequest bookingRequest);
     Task<Booking> UpdateBookingAsync(Booking booking);
+    Task<Booking> UpdateBookingBySecretaryAsync(BookingBySecretaryRequest bookingRequest);
     Task<bool> DeleteBookingAsync(int id);
+    Task<bool> DeleteBookingBySecretaryAsync(int id, int secretaryId);
     Task<bool> CheckinBookingAsync(CheckInRequest checkInRequest);
 }

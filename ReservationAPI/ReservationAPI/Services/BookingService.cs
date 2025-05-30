@@ -90,8 +90,28 @@ public class BookingService(IBookingRepository bookingRepository, IMessaging mes
         return await bookingRepository.UpdateBookingAsync(booking);
     }
 
+    public async Task<Booking> UpdateBookingBySecretaryAsync(BookingBySecretaryRequest bookingRequest)
+    {
+        var secretary = await userRepository.GetUserByIdAsync(bookingRequest.SecretaryId);
+        if (secretary is not { Role: UserRole.Secretary })
+        {
+            throw new ArgumentException("Secretary not found", nameof(bookingRequest.SecretaryId));
+        }
+        return await bookingRepository.UpdateBookingAsync(bookingRequest.Booking);
+    }
+
     public async Task<bool> DeleteBookingAsync(int id)
     {
+        return await bookingRepository.DeleteBookingAsync(id);
+    }
+
+    public async Task<bool> DeleteBookingBySecretaryAsync(int id, int secretaryId)
+    {
+        var secretary = await userRepository.GetUserByIdAsync(secretaryId);
+        if (secretary is not { Role: UserRole.Secretary })
+        {
+            throw new ArgumentException("Secretary not found", nameof(secretaryId));
+        }
         return await bookingRepository.DeleteBookingAsync(id);
     }
 
