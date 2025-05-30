@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom"; // pour navigation propre
+import { useAuth } from "@/contexts/AuthContext";
 
 export function LoginForm({
 	className,
@@ -22,12 +23,12 @@ export function LoginForm({
 	const [password, setPassword] = useState("");
 	const navigate = useNavigate();
 
+	const { login } = useAuth();
+
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		try {
-			const user = await AuthService.login({ email, password });
-			console.log("Login successful:", user);
-			localStorage.setItem("user", JSON.stringify(user));
+			login({ email, password });
 			navigate("/booking");
 		} catch (err) {
 			// console.error("Login failed:", err);

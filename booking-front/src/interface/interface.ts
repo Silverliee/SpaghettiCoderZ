@@ -2,6 +2,7 @@ export enum BookingStatus {
 	BOOKED = 0,
 	CANCELLED = 1,
 	COMPLETED = 2,
+	NOSHOW = 3,
 }
 
 export interface Booking {

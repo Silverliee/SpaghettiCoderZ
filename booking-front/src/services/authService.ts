@@ -5,6 +5,7 @@ import {
 	RegisterPayload,
 	RegisterResponse,
 } from "../interface/interface";
+import AxiosInstance from "./AxiosInstance";
 
 const API_BACK_URL = import.meta.env.VITE_API_BACK_URL;
 
@@ -25,5 +26,9 @@ export default class AuthService {
 			payload
 		);
 		return response.data;
+	}
+
+	public static async logout(): Promise<void> {
+		await AxiosInstance.post(`/User/logout`, {});
 	}
 }

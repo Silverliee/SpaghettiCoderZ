@@ -10,8 +10,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 
 import BookingService from "@/services/bookingService";
-// import BookingList from "@/components/Booking/BookingList"
-import ParkingSlotList from "@/components/Parking/ParkingSlotList";
 import { ParkingSlot } from "@/interface/interface";
 import ParkingService from "@/services/parkingService";
 import ParkingMap from "@/components/Parking/ParkingMap";
@@ -22,13 +20,32 @@ export default function BookingPage() {
 	);
 	const [parkingSlots, setParkingSlots] = useState<ParkingSlot[]>([]);
 	const [user, setUser] = useState(null);
+	const [hasAlreadyBooked, setHasAlreadyBooked] = useState<boolean>(false);
 
 	useEffect(() => {
 		const storedUser = localStorage.getItem("user");
 		if (storedUser) {
-			setUser(JSON.parse(storedUser));
+			const userData = JSON.parse(storedUser);
+			setUser(userData);
+			setHasAlreadyBooked(userData.hasAlreadyBooked || false);
 		}
-	}, []);
+	}, [parkingSlots]);
+
+	useEffect(() => {
+		if (!user) {
+			const storedUser = localStorage.getItem("user");
+			if (storedUser) {
+				setUser(JSON.parse(storedUser));
+			}
+		}
+		const userHasABookingOnThisDate = parkingSlots.some(
+			(slot) =>
+				slot.isBooked &&
+				typeof slot.userId !== "undefined" &&
+				slot?.userId === user?.id
+		);
+		setHasAlreadyBooked(userHasABookingOnThisDate);
+	}, [parkingSlots]);
 
 	useEffect(() => {
 		if (!selectedDate) return;
@@ -40,7 +57,7 @@ export default function BookingPage() {
 		console.log("Fetching parking slots for date:", utcDate);
 		ParkingService.getParkingStatePerDate(utcDate)
 			.then((response) => {
-				console.log("Places disponibles :", response);
+				//console.log("Places disponibles :", response);
 				setParkingSlots(response);
 			})
 			.catch((error) =>
@@ -50,10 +67,13 @@ export default function BookingPage() {
 
 	function handleBookParkingSlot(slotId: string) {
 		if (!selectedDate) return;
-
+		const localDate = new Date(selectedDate);
+		const utcDate = new Date(
+			localDate.getTime() - localDate.getTimezoneOffset() * 60000
+		);
 		console.log(`Réservation du slot ID: ${slotId}`);
 
-		BookingService.bookParkingSlotPerDate(slotId, selectedDate)
+		BookingService.bookParkingSlotPerDate(slotId, utcDate)
 			.then(() => {
 				setParkingSlots((prevSlots) =>
 					prevSlots.map((slot) =>
@@ -94,6 +114,7 @@ export default function BookingPage() {
 						<ParkingMap
 							parkingSlots={parkingSlots}
 							handleBookParkingSlot={handleBookParkingSlot}
+							hasAlreadyBooked={hasAlreadyBooked}
 						/>
 					</div>
 				</CardContent>

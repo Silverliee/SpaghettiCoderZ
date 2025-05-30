@@ -1,18 +1,15 @@
-import axios from "axios";
-const API_BACK_URL = import.meta.env.VITE_API_BACK_URL;
+import AxiosInstance from "./AxiosInstance";
 
 export default class UserService {
-  private static instance: UserService;
+	private static instance: UserService;
 
-  public static async getUserById(
-    userId: number,
-  ): Promise<void> {
-    // Logic to book a parking slot
-    // axios.post(`${API_BACK_URL}/Reservation`, {
-    //   parkingSlotId,
-    //   date,
-    // });
+	public static async getUserById(userId: number): Promise<void> {
+		// Logic to book a parking slot
+		// AxiosInstance.post(`/Reservation`, {
+		//   parkingSlotId,
+		//   date,
+		// });
 
-    console.log(`Booking parking slot ${parkingSlotId} for date ${date}`);
-  }
+		console.log(`Booking parking slot ${parkingSlotId} for date ${date}`);
+	}
 }

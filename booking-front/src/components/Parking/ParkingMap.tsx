@@ -1,6 +1,10 @@
 import { Button } from "@/components/ui/button";
 
-export default function ParkingMap({ parkingSlots, handleBookParkingSlot }) {
+export default function ParkingMap({
+	parkingSlots,
+	handleBookParkingSlot,
+	hasAlreadyBooked,
+}) {
 	const rows = ["A", "B", "C", "D", "E", "F"];
 	const columns = Array.from({ length: 10 }, (_, i) => i + 1);
 
@@ -20,7 +24,8 @@ export default function ParkingMap({ parkingSlots, handleBookParkingSlot }) {
 								return <div key={`${row}-${col}`} className="w-12 h-12" />;
 
 							const label = `${row}${col}`;
-							const isDisabled = slot.isBooked || slot.inMaintenance;
+							const isDisabled =
+								hasAlreadyBooked || slot.isBooked || slot.inMaintenance;
 
 							let bg = "bg-gray-100 text-black"; // disponible
 							if (slot.isBooked) bg = "bg-gray-500 text-white";
