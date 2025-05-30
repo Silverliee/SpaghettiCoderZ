@@ -20,7 +20,8 @@ export default class ParkingService {
 			const userId = booking?.userId;
 			return {
 				...slot,
-				isBooked: status == BookingStatus.BOOKED,
+				isBooked:
+					status == BookingStatus.BOOKED || status == BookingStatus.COMPLETED,
 				bookingId,
 				userId,
 			};

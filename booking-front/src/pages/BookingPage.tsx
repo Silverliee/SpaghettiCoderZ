@@ -143,6 +143,7 @@ export default function BookingPage() {
 				setTodayBooking((prev) =>
 					prev ? { ...prev, status: BookingStatus.COMPLETED } : null
 				);
+				setHasAlreadyBooked(true);
 			})
 			.catch((error) => console.error("Erreur lors du check-in :", error));
 	}
@@ -170,11 +171,12 @@ export default function BookingPage() {
 							</div>
 						</div>
 					</div>
-					{hasAlreadyBooked && (
-						<div className="text-red-600 font-medium text-center border border-red-300 bg-red-50 p-3 rounded-md">
-							Vous avez déjà une réservation pour cette date.
-						</div>
-					)}
+					{hasAlreadyBooked &&
+						todayBooking?.status === BookingStatus.BOOKED && (
+							<div className="text-red-600 font-medium text-center border border-red-300 bg-red-50 p-3 rounded-md">
+								Vous avez déjà une réservation pour cette date.
+							</div>
+						)}
 					{numberOfCurrentBookings === maxQuotaBooking && (
 						<div className="text-red-600 font-medium text-center border border-red-300 bg-red-50 p-3 rounded-md">
 							Vous avez atteind votre nombre de réservations maximum.
