@@ -64,4 +64,9 @@ public class UserService(IUserRepository userRepository, ICryptographer cryptogr
     {
         return userRepository.GetUserByIdAsync(userId);
     }
+
+    public Task<List<User>> GetAllUsersAsync()
+    {
+        return userRepository.GetAllUsersAsync();
+    }
 }

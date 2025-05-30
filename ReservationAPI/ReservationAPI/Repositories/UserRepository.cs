@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using ReservationAPI.Infrastructure.Database;
 using ReservationAPI.Models;
 
@@ -45,5 +46,10 @@ public class UserRepository(SqLiteDbContext dbContext) : IUserRepository
         dbContext.Users.Remove(user);
         dbContext.SaveChanges();
         return Task.FromResult(true);
+    }
+
+    public async Task<List<User>> GetAllUsersAsync()
+    {
+        return await dbContext.Users.ToListAsync();
     }
 }

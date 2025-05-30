@@ -8,6 +8,22 @@ namespace ReservationAPI.Controllers;
 [Route("[controller]")]
 public class UserController(IUserService userService) : ControllerBase
 {
+    [HttpGet()]
+    public async Task<IActionResult> Get()
+    {
+        try
+        {
+            var users = await userService.GetAllUsersAsync();
+            return Ok(users);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    
+    
+    
     [HttpPost("register")]
     public async Task<IActionResult> Register(RegisteringRequest registeringRequest)
     {

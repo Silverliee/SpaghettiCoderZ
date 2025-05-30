@@ -10,4 +10,6 @@ public interface IUserRepository
     public Task<User?> LoginUserAsync(string email, string password);
     public Task<User> UpdateUserAsync(User user);
     public Task<bool> DeleteUserAsync(int userId);
+    
+    public Task<List<User>> GetAllUsersAsync();
 }
