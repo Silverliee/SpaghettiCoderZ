@@ -40,7 +40,7 @@ public class BookingRepository(SqLiteDbContext dbContext) : IBookingRepository
         {
             return Task.FromResult(false);
         }
-        dbContext.Bookings.Remove(booking);
+        booking.Status = BookingStatus.Cancelled; // Soft delete
         dbContext.SaveChanges();
         return Task.FromResult(true);
     }
