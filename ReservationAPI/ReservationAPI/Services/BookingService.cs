@@ -7,14 +7,14 @@ namespace ReservationAPI.Services;
 
 public class BookingService(IBookingRepository bookingRepository, IUserService userService,IMessaging messaging) : IBookingService
 {
-    public Task<Booking?> GetBookingByIdAsync(int id)
+    public async Task<Booking?> GetBookingByIdAsync(int id)
     {
-        return bookingRepository.GetBookingByIdAsync(id);
+        return await bookingRepository.GetBookingByIdAsync(id);
     }
 
-    public Task<List<Booking>> GetBookingsAsync()
+    public async Task<List<Booking>> GetBookingsAsync()
     {
-        return bookingRepository.GetBookingsAsync();
+        return await bookingRepository.GetBookingsAsync();
     }
 
     public async Task<List<Booking>> GetBookingsByDateAsync(DateOnly date)
@@ -22,14 +22,14 @@ public class BookingService(IBookingRepository bookingRepository, IUserService u
         return await bookingRepository.GetBookingsByDateAsync(date);
     }
 
-    public Task<List<Booking>> GetBookingsByUserIdAsync(int userId)
+    public async Task<List<Booking>> GetBookingsByUserIdAsync(int userId)
     {
         if (userId <= 0)
         {
             throw new ArgumentException("User ID must be greater than zero", nameof(userId));
         }
 
-        return bookingRepository.GetBookingsByUserIdAsync(userId);
+        return await bookingRepository.GetBookingsByUserIdAsync(userId);
     }
 
     public async Task<Booking> CreateBookingAsync(Booking booking)
@@ -49,7 +49,7 @@ public class BookingService(IBookingRepository bookingRepository, IUserService u
     {
         
         var user = userService.GetUserByIdAsync(booking.UserId).Result;
-        var maxBookings = user.Role == UserRole.Manager ? 30 : 5;
+        var maxBookings = user!.Role == UserRole.Manager ? 30 : 5;
         // We retrieve all bookings for the user
         var userBookings = await bookingRepository.GetBookingsByUserIdAsync(booking.UserId);
     
@@ -58,7 +58,7 @@ public class BookingService(IBookingRepository bookingRepository, IUserService u
             .Where(b => b.Date.Date == booking.Date.Date)
             .ToList();
 
-        if (bookingsOnSameDay.Any())
+        if (bookingsOnSameDay.Count != 0)
         {
             throw new InvalidOperationException("User already has a booking for this date");
         }
@@ -74,22 +74,29 @@ public class BookingService(IBookingRepository bookingRepository, IUserService u
         }
     }
 
-    public Task<Booking> UpdateBookingAsync(Booking booking)
+    public async Task<Booking> UpdateBookingAsync(Booking booking)
     {
-        return bookingRepository.UpdateBookingAsync(booking);
+        return await bookingRepository.UpdateBookingAsync(booking);
     }
 
-    public Task<bool> DeleteBookingAsync(int id)
+    public async Task<bool> DeleteBookingAsync(int id)
     {
-        return bookingRepository.DeleteBookingAsync(id);
+        return await bookingRepository.DeleteBookingAsync(id);
     }
 
-    public Task<bool> CheckinBookingAsync(CheckInRequest checkInRequest)
+    public async Task<bool> CheckinBookingAsync(CheckInRequest checkInRequest)
     {
         if (checkInRequest == null)
         {
             throw new ArgumentNullException(nameof(checkInRequest), "Check-in request cannot be null");
         }
-        return bookingRepository.CheckinBookingAsync(checkInRequest);
+        
+        var booking = await bookingRepository.GetBookingByIdAsync(checkInRequest.BookingId);
+        if (booking is not { Status: BookingStatus.Booked } || booking.UserId != checkInRequest.UserId)
+        {
+            return await Task.FromResult(false);
+        }
+        
+        return await bookingRepository.CheckinBookingAsync(checkInRequest);
     }
 }

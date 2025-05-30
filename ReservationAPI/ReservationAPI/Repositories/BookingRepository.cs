@@ -17,40 +17,38 @@ public class BookingRepository(SqLiteDbContext dbContext) : IBookingRepository
         return await dbContext.Bookings.FindAsync(id);
     }
 
-    public Task<Booking> CreateBookingAsync(Booking booking)
+    public async Task<Booking> CreateBookingAsync(Booking booking)
     {
-        ArgumentNullException.ThrowIfNull(booking);
-
         dbContext.Bookings.Add(booking);
-        dbContext.SaveChanges();
-        return Task.FromResult(booking);
+        await dbContext.SaveChangesAsync();
+        return await Task.FromResult(booking);
     }
 
-    public Task<Booking> UpdateBookingAsync(Booking booking)
+    public async Task<Booking> UpdateBookingAsync(Booking booking)
     {
         dbContext.Bookings.Update(booking);
-        dbContext.SaveChanges();
-        return Task.FromResult(booking);
+        await dbContext.SaveChangesAsync();
+        return await Task.FromResult(booking);
     }
 
-    public Task<bool> DeleteBookingAsync(int id)
+    public async Task<bool> DeleteBookingAsync(int id)
     {
-        var booking = dbContext.Bookings.Find(id);
+        var booking = await dbContext.Bookings.FindAsync(id);
         if (booking == null)
         {
-            return Task.FromResult(false);
+            return await Task.FromResult(false);
         }
         booking.Status = BookingStatus.Cancelled; // Soft delete
-        dbContext.SaveChanges();
-        return Task.FromResult(true);
+        await dbContext.SaveChangesAsync();
+        return await Task.FromResult(true);
     }
 
-    public Task<List<Booking>> GetBookingsByDateAsync(DateOnly date)
+    public async Task<List<Booking>> GetBookingsByDateAsync(DateOnly date)
     {
         var startOfDay = date.ToDateTime(TimeOnly.MinValue); // 2025-05-30T00:00:00
         var endOfDay = date.ToDateTime(TimeOnly.MaxValue);   // 2025-05-30T23:59:59.9999999
 
-        return Task.FromResult(
+        return await Task.FromResult(
             dbContext.Bookings
                 .Where(b => b.Date >= startOfDay && b.Date <= endOfDay)
                 .OrderBy(b => b.Date)
@@ -66,18 +64,17 @@ public class BookingRepository(SqLiteDbContext dbContext) : IBookingRepository
             .ToListAsync();
     }
 
-    public Task<bool> CheckinBookingAsync(CheckInRequest checkInRequest)
+    public async Task<bool> CheckinBookingAsync(CheckInRequest checkInRequest)
     {
-        var booking = dbContext.Bookings.Find(checkInRequest.BookingId);
-        if (booking == null || booking.Status != BookingStatus.Booked || booking.UserId != checkInRequest.UserId)
+        var booking = await dbContext.Bookings.FindAsync(checkInRequest.BookingId);
+        if (booking == null )
         {
-            return Task.FromResult(false);
+            return await Task.FromResult(false);
         }
-
         booking.Status = BookingStatus.Completed;
         dbContext.Bookings.Update(booking);
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
         
-        return Task.FromResult(true);
+        return await Task.FromResult(true);
     }
 }

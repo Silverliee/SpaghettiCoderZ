@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ReservationAPI.Models;
 using ReservationAPI.Models.DTO.Booking;
 using ReservationAPI.Services;
@@ -73,7 +72,7 @@ public class BookingController(IBookingService bookingService) : ControllerBase
         try
         {
             var bookings = await bookingService.GetBookingsByUserIdAsync(userId);
-            if (bookings == null || !bookings.Any())
+            if (bookings.Count == 0)
             {
                 return NotFound($"No bookings found for user with ID {userId}.");
             }

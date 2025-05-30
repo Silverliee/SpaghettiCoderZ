@@ -10,14 +10,14 @@ public class ParkingService(IParkingRepository parkingRepository) : IParkingServ
         return await parkingRepository.GetParkingSlotsAsync();
     }
 
-    public Task<ParkingSlot?> GetSlotByIdAsync(int id)
+    public async Task<ParkingSlot?> GetSlotByIdAsync(int id)
     {
-        return parkingRepository.GetSlotByIdAsync(id);
+        return await parkingRepository.GetSlotByIdAsync(id);
     }
 
-    public Task<List<ParkingSlot>> GetAvailableSlotsAsync(DateOnly date)
+    public async Task<List<ParkingSlot>> GetAvailableSlotsAsync(DateOnly date)
     {
-        return parkingRepository.GetAvailableSlotsAsync(date);
+        return await parkingRepository.GetAvailableSlotsAsync(date);
     }
 
     public Task AddParkingSlotAsync(ParkingSlot parkingSlot)
