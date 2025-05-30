@@ -71,4 +71,13 @@ export default class BookingService {
 		const response = await AxiosInstance.get(`/Booking/user/${userId}`);
 		return response.data;
 	}
+
+	public static async checkInBooking(bookingId, userId){
+		console.log(`Checking in booking ${bookingId} for user ${userId}`);
+		const response = await AxiosInstance.post(`/Booking/checkin`, {
+			bookingId,
+			userId,
+		});
+		return response.data;
+	}
 }

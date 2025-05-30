@@ -14,10 +14,10 @@ export default function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
 		return <Navigate to="/" replace />;
 	}
 
-	// if (!allowedRoles.includes(user.role)) {
-	// 	// Rediriger ou afficher un message d'accès refusé
-	// 	return <Navigate to="/unauthorized" replace />;
-	// }
+	if (!allowedRoles.includes(user.role)) {
+		// Rediriger ou afficher un message d'accès refusé
+		return <Navigate to="/unauthorized" replace />;
+	}
 
 	return <Outlet />;
 }

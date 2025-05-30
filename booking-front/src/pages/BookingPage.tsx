@@ -8,12 +8,14 @@ import {
 } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
+import { format } from "date-fns";
 
 import BookingService from "@/services/bookingService";
 import { BookingStatus, ParkingSlot, UserRole } from "@/interface/interface";
 import ParkingService from "@/services/parkingService";
 import ParkingMap from "@/components/Parking/ParkingMap";
 import { useAuth } from "@/contexts/AuthContext";
+import { max } from "date-fns";
 
 export default function BookingPage() {
 	const [selectedDate, setSelectedDate] = useState<Date | undefined>(
@@ -23,12 +25,50 @@ export default function BookingPage() {
 	const [hasAlreadyBooked, setHasAlreadyBooked] = useState<boolean>(false);
 	const [numberOfCurrentBookings, setNumberOfCurrentBookings] =
 		useState<number>(0);
-
+	const [maxQuotaBooking, setMaxQuotaBooking] = useState<number>(5);
 	const { user } = useAuth();
-	const MAX_QUOTA_BOOKINGS = user?.role === UserRole.MANAGER ? 30 : 5;
+	const [todayBooking, setTodayBooking] = useState<{
+		id: string;
+		status: BookingStatus;
+	} | null>(null);
+
+	useEffect(() => {
+		if (!selectedDate || !user) return;
+
+		const selectedDateFormatted = format(selectedDate, "yyyy-MM-dd");
+
+		BookingService.getBookingsByUserId(user.userId)
+			.then((bookings) => {
+				// Vérifie si l'une des réservations correspond à la date sélectionnée
+				const matchingBooking = bookings.find((booking) => {
+					const bookingDate = new Date(booking.date); // ou booking.bookingDate selon ton interface
+					const bookingDateFormatted = format(bookingDate, "yyyy-MM-dd");
+					return bookingDateFormatted === selectedDateFormatted;
+				});
+
+				if (matchingBooking) {
+					setTodayBooking({
+						id: matchingBooking.id,
+						status: matchingBooking.status,
+					});
+				} else {
+					setTodayBooking(null);
+				}
+			})
+			.catch((err) => {
+				console.error("Erreur lors de la récupération des réservations :", err);
+				setTodayBooking(null);
+			});
+	}, [selectedDate, user]);
 
 	useEffect(() => {
 		if (user) {
+			let MAX_QUOTA_BOOKINGS = 0;
+			console.log("user role: " + user.role);
+			if (user.role === UserRole.MANAGER) {
+				MAX_QUOTA_BOOKINGS = 10; // Managers can book up to 10 slots
+				setMaxQuotaBooking(MAX_QUOTA_BOOKINGS);
+			}
 			BookingService.getBookingsByUserId(user.userId).then((bookings) => {
 				const currentBookings = bookings.filter(
 					(booking) => booking.status === BookingStatus.BOOKED
@@ -36,7 +76,7 @@ export default function BookingPage() {
 				setNumberOfCurrentBookings(currentBookings.length);
 			});
 		}
-		console.log("MAX_QUOTA_BOOKINGS" + MAX_QUOTA_BOOKINGS);
+		console.log("MAX_QUOTA_BOOKINGS" + maxQuotaBooking);
 		console.log("user role: " + user?.role);
 	}, [user]);
 
@@ -97,6 +137,16 @@ export default function BookingPage() {
 			);
 	}
 
+	function handleCheckIn(bookingId: string) {
+		BookingService.checkInBooking(bookingId, user?.userId)
+			.then(() => {
+				setTodayBooking((prev) =>
+					prev ? { ...prev, status: BookingStatus.COMPLETED } : null
+				);
+			})
+			.catch((error) => console.error("Erreur lors du check-in :", error));
+	}
+
 	return (
 		<div className="p-6">
 			<Card>
@@ -125,18 +175,38 @@ export default function BookingPage() {
 							Vous avez déjà une réservation pour cette date.
 						</div>
 					)}
-					{numberOfCurrentBookings === MAX_QUOTA_BOOKINGS && (
+					{numberOfCurrentBookings === maxQuotaBooking && (
 						<div className="text-red-600 font-medium text-center border border-red-300 bg-red-50 p-3 rounded-md">
 							Vous avez atteind votre nombre de réservations maximum.
 						</div>
 					)}
 					<div>
+						{selectedDate &&
+							new Date().toDateString() ===
+								new Date(selectedDate).toDateString() &&
+							todayBooking && (
+								<div className="text-center">
+									{todayBooking.status === BookingStatus.BOOKED ? (
+										<button
+											onClick={() => handleCheckIn(todayBooking.id)}
+											className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+										>
+											Faire le Check-in
+										</button>
+									) : todayBooking.status === BookingStatus.COMPLETED ? (
+										<div className="text-green-600 font-medium border border-green-300 bg-green-50 p-3 rounded-md inline-block">
+											Check-in effectué ✅
+										</div>
+									) : null}
+								</div>
+							)}
+						<br />
+
 						<ParkingMap
 							parkingSlots={parkingSlots}
 							handleBookParkingSlot={handleBookParkingSlot}
 							hasAlreadyBooked={
-								hasAlreadyBooked ||
-								numberOfCurrentBookings === MAX_QUOTA_BOOKINGS
+								hasAlreadyBooked || numberOfCurrentBookings === maxQuotaBooking
 							}
 						/>
 					</div>

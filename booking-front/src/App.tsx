@@ -21,14 +21,12 @@ function App() {
 			</Route>
 
 			<Route element={<WithHeaderLayout />}>
-				<Route element={<ProtectedRoute allowedRoles={[UserRole.USER]} />}>
-					<Route element={<ProtectedRoute allowedRoles={[UserRole.MANAGER]} />}>
-						<Route path="/statistics" element={<StatisTicsPage />} />
-					</Route>
-					<Route path="/unauthorized" element={<UnauthorizedPage />} />
-					<Route path="/Booking" element={<BookingPage />} />
-					<Route path="/History" element={<HistoryPage />} />
+				<Route element={<ProtectedRoute allowedRoles={[UserRole.MANAGER]} />}>
+					<Route path="/statistics" element={<StatisTicsPage />} />
 				</Route>
+				<Route path="/unauthorized" element={<UnauthorizedPage />} />
+				<Route path="/Booking" element={<BookingPage />} />
+				<Route path="/History" element={<HistoryPage />} />
 			</Route>
 		</Routes>
 	);

@@ -41,7 +41,7 @@ export default function Header() {
 						<DropdownMenuItem onClick={() => navigate("/history")}>
 							Historique des réservations
 						</DropdownMenuItem>
-						{userRole !== UserRole.MANAGER && (
+						{userRole === UserRole.MANAGER && (
 							<DropdownMenuItem onClick={() => navigate("/statistics")}>
 								Statistiques
 							</DropdownMenuItem>
