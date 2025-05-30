@@ -10,26 +10,102 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 
 import BookingService from "@/services/bookingService";
-import { ParkingSlot } from "@/interface/interface";
+import { BookingStatus, ParkingSlot } from "@/interface/interface";
 import ParkingService from "@/services/parkingService";
 import ParkingMap from "@/components/Parking/ParkingMap";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function BookingPage() {
 	const [selectedDate, setSelectedDate] = useState<Date | undefined>(
 		new Date()
 	);
 	const [parkingSlots, setParkingSlots] = useState<ParkingSlot[]>([]);
-	const [user, setUser] = useState(null);
 	const [hasAlreadyBooked, setHasAlreadyBooked] = useState<boolean>(false);
+	const [numberOfCurrentBookings, setNumberOfCurrentBookings] =
+		useState<number>(0);
+
+	const { user } = useAuth();
+	const MAX_QUOTA_BOOKINGS = user?.role === "USER" ? 5 : 30;
 
 	useEffect(() => {
-		const storedUser = localStorage.getItem("user");
-		if (storedUser) {
-			const userData = JSON.parse(storedUser);
-			setUser(userData);
-			setHasAlreadyBooked(userData.hasAlreadyBooked || false);
+		if (user) {
+			BookingService.getBookingsByUserId(user.userId).then((bookings) => {
+				console.log("Current bookings:", bookings);
+				const currentBookings = bookings.filter(
+					(booking) => booking.status === BookingStatus.BOOKED
+				);
+				setNumberOfCurrentBookings(currentBookings.length);
+			});
+		} else {
+			const fakeBookings = [
+				{
+					id: "1",
+					slotId: "A1",
+					date: "2023-10-01T00:00:00",
+					status: 3,
+					userId: "me",
+				},
+				{
+					id: "2",
+					slotId: "A2",
+					date: "2023-10-02T00:00:00",
+					status: 1,
+					userId: "me",
+				},
+				{
+					id: "3",
+					slotId: "A3",
+					date: "2023-10-03T00:00:00",
+					status: 2,
+					userId: "me",
+				},
+				{
+					id: "4",
+					slotId: "A3",
+					date: "2023-10-04T00:00:00",
+					status: 0,
+					userId: "me",
+				},
+				{
+					id: "5",
+					slotId: "A1",
+					date: "2026-10-01T00:00:00",
+					status: 3,
+					userId: "me",
+				},
+				{
+					id: "6",
+					slotId: "A2",
+					date: "2026-10-02T00:00:00",
+					status: 1,
+					userId: "me",
+				},
+				{
+					id: "7",
+					slotId: "A3",
+					date: "2026-10-03T00:00:00",
+					status: 2,
+					userId: "me",
+				},
+				{
+					id: "8",
+					slotId: "A3",
+					date: "2026-10-04T00:00:00",
+					status: 0,
+					userId: "me",
+				},
+			];
+
+			const currentBookings = fakeBookings.filter(
+				(booking) => booking.status === BookingStatus.BOOKED
+			);
+			setNumberOfCurrentBookings(currentBookings.length);
 		}
-	}, [parkingSlots]);
+	}, [user]);
+
+	useEffect(() => {
+		console.log("numberOfCurrentBookings: " + numberOfCurrentBookings);
+	}, [numberOfCurrentBookings]);
 
 	useEffect(() => {
 		if (!user) {
@@ -42,7 +118,8 @@ export default function BookingPage() {
 			(slot) =>
 				slot.isBooked &&
 				typeof slot.userId !== "undefined" &&
-				slot?.userId === user?.id
+				//slot?.userId === user?.id
+				slot?.userId === "me"
 		);
 		setHasAlreadyBooked(userHasABookingOnThisDate);
 	}, [parkingSlots]);
@@ -58,6 +135,22 @@ export default function BookingPage() {
 		ParkingService.getParkingStatePerDate(utcDate)
 			.then((response) => {
 				//console.log("Places disponibles :", response);
+				// const fakeResponse = response.map((slot) => {
+				// 	if (slot.id == 1) {
+				// 		return {
+				// 			id: 1,
+				// 			row: "A",
+				// 			bookingId: 1,
+				// 			column: 1,
+				// 			hasCharger: true,
+				// 			inMaintenance: false,
+				// 			isBooked: true,
+				// 			userId: "me",
+				// 		};
+				// 	} else {
+				// 		return slot;
+				// 	}
+				// });
 				setParkingSlots(response);
 			})
 			.catch((error) =>
@@ -109,7 +202,16 @@ export default function BookingPage() {
 							</div>
 						</div>
 					</div>
-
+					{hasAlreadyBooked && (
+						<div className="text-red-600 font-medium text-center border border-red-300 bg-red-50 p-3 rounded-md">
+							Vous avez déjà une réservation pour cette date.
+						</div>
+					)}
+					{numberOfCurrentBookings === MAX_QUOTA_BOOKINGS && (
+						<div className="text-red-600 font-medium text-center border border-red-300 bg-red-50 p-3 rounded-md">
+							Vous avez atteind votre nombre de réservations maximum.
+						</div>
+					)}
 					<div>
 						<ParkingMap
 							parkingSlots={parkingSlots}

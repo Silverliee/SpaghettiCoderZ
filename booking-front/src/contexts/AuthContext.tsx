@@ -28,12 +28,8 @@ export function AuthProvider({ children }) {
 		setUser(null);
 	};
 
-	const getToken = () => {
-		return user ? user.token : null;
-	};
-
 	return (
-		<AuthContext.Provider value={{ user, login, logout, getToken }}>
+		<AuthContext.Provider value={{ user, login, logout }}>
 			{children}
 		</AuthContext.Provider>
 	);

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function ParkingMap({
 	parkingSlots,
@@ -10,6 +11,8 @@ export default function ParkingMap({
 
 	const getSlot = (row: string, column: number) =>
 		parkingSlots.find((slot) => slot.row === row && slot.column === column);
+
+	const { user } = useAuth();
 
 	return (
 		<div className="flex flex-col items-center gap-6 bg-black p-6 rounded-lg shadow-lg">
@@ -23,6 +26,8 @@ export default function ParkingMap({
 							if (!slot)
 								return <div key={`${row}-${col}`} className="w-12 h-12" />;
 
+							//const isMine = slot.userId === user.userId;
+							const isMine = slot.userId === "me";
 							const label = `${row}${col}`;
 							const isDisabled =
 								hasAlreadyBooked || slot.isBooked || slot.inMaintenance;
@@ -30,9 +35,13 @@ export default function ParkingMap({
 							let bg = "bg-gray-100 text-black"; // disponible
 							if (slot.isBooked) bg = "bg-gray-500 text-white";
 							if (slot.inMaintenance) bg = "bg-yellow-400 text-black";
+							if (isMine) bg = "bg-blue-500 text-white";
 
-							const border = slot.hasCharger ? "border-2 border-green-500" : "";
-
+							const border = slot.hasCharger
+								? "border-2 border-green-500"
+								: isMine
+								? "border-2 border-blue-500"
+								: "";
 							return (
 								<Button
 									key={slot.id}
@@ -74,6 +83,10 @@ export default function ParkingMap({
 				<div className="flex items-center gap-2">
 					<div className="w-4 h-4 border-2 border-green-500" />
 					<span>Chargeur</span>
+				</div>
+				<div className="flex items-center gap-2">
+					<div className="w-4 h-4 border-2 bg-blue-500" />
+					<span>Ma réservation</span>
 				</div>
 			</div>
 		</div>

@@ -7,6 +7,9 @@ import SignUpPage from "./pages/SignUpPage";
 import HistoryPage from "./pages/HistoryPage";
 import WithHeaderLayout from "./components/ui/with-header-layout";
 import WithoutHeaderLayout from "./components/ui/without-header-layout";
+import ProtectedRoute from "./ProtectedRoute";
+import UnauthorizedPage from "./pages/UnauthorizedPage";
+import { UserRole } from "./interface/interface";
 
 function App() {
 	return (
@@ -17,8 +20,15 @@ function App() {
 			</Route>
 
 			<Route element={<WithHeaderLayout />}>
-				<Route path="/Booking" element={<BookingPage />} />
-				<Route path="/History" element={<HistoryPage />} />
+				<Route
+					element={
+						<ProtectedRoute allowedRoles={[UserRole.MANAGER, UserRole.USER]} />
+					}
+				>
+					<Route path="/unauthorized" element={<UnauthorizedPage />} />
+					<Route path="/Booking" element={<BookingPage />} />
+					<Route path="/History" element={<HistoryPage />} />
+				</Route>
 			</Route>
 		</Routes>
 	);

@@ -5,6 +5,13 @@ export enum BookingStatus {
 	NOSHOW = 3,
 }
 
+export enum UserRole {
+	ADMIN = 0,
+	USER = 1,
+	MANAGER = 2,
+	SECRETARY = 3,
+}
+
 export interface Booking {
 	id: string;
 	parkingSlotId: string;

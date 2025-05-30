@@ -22,7 +22,7 @@ export default class AuthService {
 		payload: RegisterPayload
 	): Promise<RegisterResponse> {
 		const response = await axios.post<RegisterResponse>(
-			`${API_BACK_URL}/User`,
+			`${API_BACK_URL}/User/register`,
 			payload
 		);
 		return response.data;

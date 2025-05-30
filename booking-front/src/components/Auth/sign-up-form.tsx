@@ -10,8 +10,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import AuthService, { register } from "@/services/authService";
+import AuthService from "@/services/authService";
 import { useNavigate } from "react-router-dom";
+import { UserRole } from "@/interface/interface";
 
 export function SignUpForm({
 	className,
@@ -34,7 +35,7 @@ export function SignUpForm({
 		e.preventDefault();
 
 		const dataToSend = {
-			role: 0,
+			role: UserRole.USER,
 			...formData,
 		};
 

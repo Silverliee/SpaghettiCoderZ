@@ -49,12 +49,23 @@ export default function HistoryDisplay() {
 		BookingService.deleteBooking(bookingId)
 			.then(() => {
 				setBookings((prevBookings) =>
-					prevBookings.filter((booking) => booking.id !== bookingId)
+					prevBookings.map((booking) =>
+						booking.id === bookingId
+							? { ...booking, status: BookingStatus.CANCELLED }
+							: booking
+					)
 				);
 			})
 			.catch((error) => {
 				console.error("Failed to cancel booking:", error);
 				alert("Erreur lors de l'annulation de la réservation.");
+				setBookings((prevBookings) =>
+					prevBookings.map((booking) =>
+						booking.id === bookingId
+							? { ...booking, status: BookingStatus.CANCELLED }
+							: booking
+					)
+				);
 			});
 	};
 
