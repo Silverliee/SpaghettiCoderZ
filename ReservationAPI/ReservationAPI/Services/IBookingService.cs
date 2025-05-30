@@ -11,6 +11,7 @@ public interface IBookingService
     Task<List<Booking>> GetBookingsByDateAsync(DateOnly date);
     Task<List<Booking>> GetBookingsByUserIdAsync(int userId);
     Task<Booking> CreateBookingAsync(Booking booking);
+    Task<Booking> CreateBookingBySecretaryAsync(BookingBySecretaryRequest bookingRequest);
     Task<Booking> UpdateBookingAsync(Booking booking);
     Task<bool> DeleteBookingAsync(int id);
     Task<bool> CheckinBookingAsync(CheckInRequest checkInRequest);

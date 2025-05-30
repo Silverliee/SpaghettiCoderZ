@@ -103,6 +103,24 @@ public class BookingController(IBookingService bookingService) : ControllerBase
         }
     }
     
+    [HttpPost("secretary")]
+    public async Task<IActionResult> PostBySecretary([FromBody] BookingBySecretaryRequest? bookingRequest)
+    {
+        if (bookingRequest == null)
+        {
+            return BadRequest("Booking request cannot be null.");
+        }
+        try
+        {
+            var booking = await bookingService.CreateBookingBySecretaryAsync(bookingRequest);
+            return Ok(booking);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    
     [HttpPost("bulk")]
     [Produces("application/json")]
     [ProducesResponseType(200)]

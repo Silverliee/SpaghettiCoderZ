@@ -5,7 +5,7 @@ using ReservationAPI.Repositories;
 
 namespace ReservationAPI.Services;
 
-public class BookingService(IBookingRepository bookingRepository, IUserService userService,IMessaging messaging) : IBookingService
+public class BookingService(IBookingRepository bookingRepository, IMessaging messaging, IUserRepository userRepository) : IBookingService
 {
     public async Task<Booking?> GetBookingByIdAsync(int id)
     {
@@ -45,10 +45,21 @@ public class BookingService(IBookingRepository bookingRepository, IUserService u
         return await bookingRepository.CreateBookingAsync(booking);
     }
 
+    public async Task<Booking> CreateBookingBySecretaryAsync(BookingBySecretaryRequest bookingRequest)
+    {
+        var secretary = await userRepository.GetUserByIdAsync(bookingRequest.SecretaryId);
+        if (secretary == null || secretary.Role != UserRole.Secretary)
+        {
+            throw new ArgumentException("Secretary not found", nameof(bookingRequest.SecretaryId));
+        }
+         // Assuming secretary is the user making the booking
+        return await CreateBookingAsync(bookingRequest.Booking);
+    }
+
     private async Task ValidateBookingAsync(Booking booking)
     {
         
-        var user = userService.GetUserByIdAsync(booking.UserId).Result;
+        var user = userRepository.GetUserByIdAsync(booking.UserId).Result;
         var maxBookings = user!.Role == UserRole.Manager ? 30 : 5;
         // We retrieve all bookings for the user
         var userBookings = await bookingRepository.GetBookingsByUserIdAsync(booking.UserId);
