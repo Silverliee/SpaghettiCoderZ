@@ -22,25 +22,6 @@ public class StatisticController(IStatisticService statisticService) : Controlle
             return StatusCode(500, $"Error while retrieving global parking statistics : {ex.Message}");
         }
     }
-
-    [HttpGet("global/period")]
-    public async Task<ActionResult<ParkingGlobalStatisticResponse>> GetGlobalStatisticsByPeriod(
-        [FromQuery] DateTime startDate, 
-        [FromQuery] DateTime endDate)
-    {
-        try
-        {
-            if (startDate > endDate)
-                return BadRequest("Start date must be earlier than end date");
-
-            var statistics = await statisticService.GetParkingGlobalStatisticByDateAsync(startDate, endDate);
-            return Ok(statistics);
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, $"Error while retrieving global parking statistics for the period: {ex.Message}");
-        }
-    }
     
     [HttpGet("user/{userId:int}")]
     public async Task<ActionResult<UserStatisticResponse>> GetUserStatistics(int userId)

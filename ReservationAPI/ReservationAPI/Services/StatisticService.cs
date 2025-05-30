@@ -13,12 +13,12 @@ public class StatisticService(IBookingRepository bookingRepository, IParkingRepo
         var allBookings = await bookingRepository.GetBookingsAsync();
         var allParkingSlots = await parkingRepository.GetParkingSlotsAsync();
 
-        var today = DateTime.Today;
+        var today = DateTime.UtcNow.Date;
 
         // Occupied parking slots for today
         var currentlyOccupied = allBookings.Count(b =>
-            b.Date.Date == today &&
-            b.Status == BookingStatus.Completed);
+            b.Date.Date == today && 
+            b.Status is BookingStatus.Booked or BookingStatus.Completed); 
 
         var currentAvailable = allParkingSlots.Count - currentlyOccupied;
 
@@ -44,60 +44,6 @@ public class StatisticService(IBookingRepository bookingRepository, IParkingRepo
         return new ParkingGlobalStatisticResponse
         {
             CurrentAvailableParkingSlots = currentAvailable,
-            OccupancyRatePercentage = occupancyRate,
-            CanceledBookingsCount = canceledBookings,
-            PeakBookingDate = peakDate,
-            NoShowCount = noShows
-        };
-    }
-
-    public async Task<ParkingGlobalStatisticResponse> GetParkingGlobalStatisticByDateAsync(DateTime startDate,
-        DateTime endDate)
-    {
-        var allBookings = await bookingRepository.GetBookingsAsync();
-        var allParkingSlots = await parkingRepository.GetParkingSlotsAsync();
-
-        // Filter bookings within the specified date range
-        var filteredBookings = allBookings
-            .Where(b => b.Date.Date >= startDate.Date && b.Date.Date <= endDate.Date)
-            .ToList();
-
-        // Calculate total slot days in the period
-        var totalSlotDays = allParkingSlots.Count * ((endDate - startDate).Days + 1);
-
-        // For each day in the period, count the number of booked slots
-        var bookedSlotDays = 0;
-        for (var date = startDate.Date; date <= endDate.Date; date = date.AddDays(1))
-        {
-            bookedSlotDays += filteredBookings.Count(b =>
-                b.Date.Date == date &&
-                b.Status == BookingStatus.Completed);
-        }
-
-        var occupancyRate = totalSlotDays > 0
-            ? (double)bookedSlotDays / totalSlotDays * 100
-            : 0;
-
-        // Canceled bookings in the period
-        var canceledBookings = filteredBookings.Count(b => b.Status == BookingStatus.Cancelled);
-
-        // Most booked date in the period
-        var peakDate = filteredBookings.Any()
-            ? filteredBookings
-                .GroupBy(b => b.Date.Date)
-                .OrderByDescending(g => g.Count())
-                .First().Key
-            : startDate;
-
-        // No-shows in the period
-        var today = DateTime.Today;
-        var noShows = filteredBookings.Count(b =>
-            b.Status == BookingStatus.NoShow &&
-            b.Date.Date < today);
-
-        return new ParkingGlobalStatisticResponse
-        {
-            CurrentAvailableParkingSlots = allParkingSlots.Count,
             OccupancyRatePercentage = occupancyRate,
             CanceledBookingsCount = canceledBookings,
             PeakBookingDate = peakDate,
