@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReservationAPI.Models;
+using ReservationAPI.Models.DTO.Booking;
 using ReservationAPI.Services;
 
 namespace ReservationAPI.Controllers;
@@ -162,6 +163,32 @@ public class BookingController(IBookingService bookingService) : ControllerBase
                 return NotFound($"Booking with ID {id} not found.");
             }
             await bookingService.DeleteBookingAsync(id);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, ex.Message);
+        }
+    }
+    
+    [HttpPost("checkin")]
+    [Produces("application/json")]
+    [ProducesResponseType(200)]
+    [ProducesResponseType(400)]
+    [ProducesResponseType(500)]
+    public async Task<IActionResult> Checkin([FromBody] CheckInRequest checkInRequest)
+    {
+        if (checkInRequest.BookingId < 0 || checkInRequest.UserId < 0)
+        {
+            return BadRequest("Invalid check-in request.");
+        }
+        try
+        {
+            var result = await bookingService.CheckinBookingAsync(checkInRequest);
+            if (!result)
+            {
+                return BadRequest("Check-in failed. Booking may not exist or is already checked in.");
+            }
             return Ok();
         }
         catch (Exception ex)
