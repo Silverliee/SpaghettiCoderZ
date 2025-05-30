@@ -18,7 +18,7 @@ public class UserService(IUserRepository userRepository, ICryptographer cryptogr
                 FirstName = registeringRequest.FirstName,
                 LastName = registeringRequest.LastName,
                 Email = registeringRequest.Email,
-                Role = UserRole.Employee,
+                Role = registeringRequest.Role,
                 Password = cryptographer.Encrypt(registeringRequest.Password)
             };
             var result = await userRepository.RegisterUserAsync(myUser);
@@ -90,7 +90,7 @@ public class UserService(IUserRepository userRepository, ICryptographer cryptogr
                 FirstName = registeringRequest.FirstName,
                 LastName = registeringRequest.LastName,
                 Email = registeringRequest.Email,
-                Role = UserRole.Employee,
+                Role = registeringRequest.Role,
                 Password = cryptographer.Encrypt(registeringRequest.Password)
             };
             var result = await userRepository.RegisterUserAsync(myUser);

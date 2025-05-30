@@ -1,6 +1,329 @@
-@ReservationAPI_HostAddress = http://localhost:5062
+@ReservationAPI_HostAddress = http://localhost:7033
 
-GET {{ReservationAPI_HostAddress}}/weatherforecast/
+# User Authentication & Registration
+###
+
+# Register a new user
+POST {{ReservationAPI_HostAddress}}/User/register
+Content-Type: application/json
+
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john.doe@example.com",
+  "password": "Password123!",
+  "role": 1
+}
+
+###
+
+# Login user
+POST {{ReservationAPI_HostAddress}}/User/login
+Content-Type: application/json
+
+{
+  "email": "john.doe@example.com",
+  "password": "Password123!"
+}
+
+###
+
+# Register user by secretary
+POST {{ReservationAPI_HostAddress}}/User/register/secretary
+Content-Type: application/json
+
+{
+  "secretaryId": 1,
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "email": "jane.smith@example.com",
+  "password": "Password123!",
+  "role": 1
+}
+
+###
+
+# Get all users
+GET {{ReservationAPI_HostAddress}}/User
 Accept: application/json
 
 ###
+
+# Booking Management
+###
+
+# Get all bookings
+GET {{ReservationAPI_HostAddress}}/Booking
+Accept: application/json
+
+###
+
+# Get booking by ID
+GET {{ReservationAPI_HostAddress}}/Booking/1
+Accept: application/json
+
+###
+
+# Get bookings by date
+GET {{ReservationAPI_HostAddress}}/Booking/date/2025-05-30
+Accept: application/json
+
+###
+
+# Get bookings by user ID
+GET {{ReservationAPI_HostAddress}}/Booking/user/1
+Accept: application/json
+
+###
+
+# Create a new booking
+POST {{ReservationAPI_HostAddress}}/Booking
+Content-Type: application/json
+
+{
+  "date": "2025-06-01T09:00:00Z",
+  "slotId": 1,
+  "userId": 1,
+  "status": 0
+}
+
+###
+
+# Create booking by secretary
+POST {{ReservationAPI_HostAddress}}/Booking/secretary
+Content-Type: application/json
+
+{
+  "secretaryId": 1,
+  "booking": {
+    "date": "2025-06-01T09:00:00Z",
+    "slotId": 1,
+    "userId": 2,
+    "status": 0
+  }
+}
+
+###
+
+# Create multiple bookings (bulk)
+POST {{ReservationAPI_HostAddress}}/Booking/bulk
+Content-Type: application/json
+
+[
+  {
+    "date": "2025-06-01T09:00:00Z",
+    "slotId": 1,
+    "userId": 1,
+    "status": 0
+  },
+  {
+    "date": "2025-06-02T09:00:00Z",
+    "slotId": 2,
+    "userId": 1,
+    "status": 0
+  }
+]
+
+###
+
+# Update booking
+PUT {{ReservationAPI_HostAddress}}/Booking/1
+Content-Type: application/json
+
+{
+  "id": 1,
+  "date": "2025-06-01T10:00:00Z",
+  "slotId": 1,
+  "userId": 1,
+  "status": 1
+}
+
+###
+
+# Update booking by secretary
+PUT {{ReservationAPI_HostAddress}}/Booking/secretary/1
+Content-Type: application/json
+
+{
+  "secretaryId": 1,
+  "booking": {
+    "id": 1,
+    "date": "2025-06-01T10:00:00Z",
+    "slotId": 1,
+    "userId": 2,
+    "status": 1
+  }
+}
+
+###
+
+# Delete booking
+DELETE {{ReservationAPI_HostAddress}}/Booking/1
+
+###
+
+# Delete booking by secretary
+DELETE {{ReservationAPI_HostAddress}}/Booking/secretary/1?secretaryId=1
+
+###
+
+# Check-in booking
+POST {{ReservationAPI_HostAddress}}/Booking/checkin
+Content-Type: application/json
+
+{
+  "bookingId": 1,
+  "userId": 1
+}
+
+###
+
+# Parking Management
+###
+
+# Get all parking slots
+GET {{ReservationAPI_HostAddress}}/Parking
+Accept: application/json
+
+###
+
+# Create a new parking slot
+POST {{ReservationAPI_HostAddress}}/Parking
+Content-Type: application/json
+
+{
+  "row": "A",
+  "column": 1,
+  "hasCharger": true,
+  "inMaintenance": false
+}
+
+###
+
+# Create multiple parking slots (bulk)
+POST {{ReservationAPI_HostAddress}}/Parking/bulk
+Content-Type: application/json
+
+[
+  {
+    "row": "A",
+    "column": 1,
+    "hasCharger": true,
+    "inMaintenance": false
+  },
+  {
+    "row": "A",
+    "column": 2,
+    "hasCharger": false,
+    "inMaintenance": false
+  }
+]
+
+###
+
+# Update parking slot
+PUT {{ReservationAPI_HostAddress}}/Parking
+Content-Type: application/json
+
+{
+  "id": 1,
+  "row": "A",
+  "column": 1,
+  "hasCharger": true,
+  "inMaintenance": true
+}
+
+###
+
+# Delete parking slot
+DELETE {{ReservationAPI_HostAddress}}/Parking/1
+
+###
+
+# Statistics
+###
+
+# Get global parking statistics
+GET {{ReservationAPI_HostAddress}}/Statistic/global
+Accept: application/json
+
+###
+
+# Get global parking statistics by period
+GET {{ReservationAPI_HostAddress}}/Statistic/global/period?startDate=2025-05-01&endDate=2025-05-31
+Accept: application/json
+
+###
+
+# Get user statistics
+GET {{ReservationAPI_HostAddress}}/Statistic/user/1
+Accept: application/json
+
+###
+
+# Get user statistics by period
+GET {{ReservationAPI_HostAddress}}/Statistic/user/1/period?startDate=2025-05-01&endDate=2025-05-31
+Accept: application/json
+
+###
+
+# Additional Examples with Different Status Values
+###
+
+# Create booking with different statuses
+# Status: 0 = Booked, 1 = Cancelled, 2 = Completed, 3 = NoShow
+
+# Create cancelled booking
+POST {{ReservationAPI_HostAddress}}/Booking
+Content-Type: application/json
+
+{
+  "date": "2025-06-03T09:00:00Z",
+  "slotId": 3,
+  "userId": 1,
+  "status": 1
+}
+
+###
+
+# Create completed booking
+POST {{ReservationAPI_HostAddress}}/Booking
+Content-Type: application/json
+
+{
+  "date": "2025-06-04T09:00:00Z",
+  "slotId": 4,
+  "userId": 1,
+  "status": 2
+}
+
+###
+
+# User Roles Reference
+# 0 = Admin, 1 = Employee, 2 = Manager, 3 = Secretary
+
+# Register manager
+POST {{ReservationAPI_HostAddress}}/User/register
+Content-Type: application/json
+
+{
+  "firstName": "Manager",
+  "lastName": "Boss",
+  "email": "manager@example.com",
+  "password": "Manager123!",
+  "role": 2
+}
+
+###
+
+# Register secretary
+POST {{ReservationAPI_HostAddress}}/User/register
+Content-Type: application/json
+
+{
+  "firstName": "Secretary",
+  "lastName": "Helper",
+  "email": "secretary@example.com",
+  "password": "Secretary123!",
+  "role": 3
+}
