@@ -1,4 +1,5 @@
 using ReservationAPI.Models;
+using ReservationAPI.Models.DTO.Booking;
 
 namespace ReservationAPI.Services;
 
@@ -12,4 +13,5 @@ public interface IBookingService
     Task<Booking> CreateBookingAsync(Booking booking);
     Task<Booking> UpdateBookingAsync(Booking booking);
     Task<bool> DeleteBookingAsync(int id);
+    Task<bool> CheckinBookingAsync(CheckInRequest checkInRequest);
 }

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ReservationAPI.Infrastructure.Database;
 using ReservationAPI.Models;
+using ReservationAPI.Models.DTO.Booking;
 
 namespace ReservationAPI.Repositories;
 
@@ -56,13 +57,27 @@ public class BookingRepository(SqLiteDbContext dbContext) : IBookingRepository
                 .ToList()
         );
     }
-
-
+    
     public async Task<List<Booking>> GetBookingsByUserIdAsync(int userId)
     {
         return await dbContext.Bookings
             .Where(b => b.UserId == userId)
             .OrderBy(b => b.Date)
             .ToListAsync();
+    }
+
+    public Task<bool> CheckinBookingAsync(CheckInRequest checkInRequest)
+    {
+        var booking = dbContext.Bookings.Find(checkInRequest.BookingId);
+        if (booking == null || booking.Status != BookingStatus.Booked || booking.UserId != checkInRequest.UserId)
+        {
+            return Task.FromResult(false);
+        }
+
+        booking.Status = BookingStatus.Completed;
+        dbContext.Bookings.Update(booking);
+        dbContext.SaveChanges();
+        
+        return Task.FromResult(true);
     }
 }

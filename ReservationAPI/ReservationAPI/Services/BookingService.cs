@@ -1,4 +1,5 @@
 using ReservationAPI.Models;
+using ReservationAPI.Models.DTO.Booking;
 using ReservationAPI.Repositories;
 
 namespace ReservationAPI.Services;
@@ -79,5 +80,14 @@ public class BookingService(IBookingRepository bookingRepository, IUserService u
     public Task<bool> DeleteBookingAsync(int id)
     {
         return bookingRepository.DeleteBookingAsync(id);
+    }
+
+    public Task<bool> CheckinBookingAsync(CheckInRequest checkInRequest)
+    {
+        if (checkInRequest == null)
+        {
+            throw new ArgumentNullException(nameof(checkInRequest), "Check-in request cannot be null");
+        }
+        return bookingRepository.CheckinBookingAsync(checkInRequest);
     }
 }
