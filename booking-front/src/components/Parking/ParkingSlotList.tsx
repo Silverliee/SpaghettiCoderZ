@@ -1,5 +1,4 @@
 import { ParkingSlot } from "../../interface/interface";
-import BookingService from "../../services/bookingService";
 import ParkingSlotItem from "./ParkingSlotItem";
 
 interface ParkingSlotListProps {

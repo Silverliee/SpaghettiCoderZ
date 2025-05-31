@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AuthService, { login } from "@/services/authService";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link } from "react-router-dom"; // pour navigation propre
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import AuthService from "@/services/authService";
 
 export function LoginForm({
 	className,
@@ -28,14 +29,17 @@ export function LoginForm({
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		try {
-			const response = login({ email, password });
+			const response = await AuthService.login({ email, password });
+			login(response);
+			toast.success("Authentification réussi", {
+				duration: 2000,
+			});
 			await new Promise((resolve) => setTimeout(resolve, 1000));
-			console.log("Login successful:", response);
 			navigate("/booking");
 		} catch (err) {
-			// console.error("Login failed:", err);
-			// alert("Invalid email or password");
-			navigate("booking");
+			toast.error("Echec de l'authentification", {
+				duration: 2000,
+			});
 		}
 	};
 
@@ -72,7 +76,11 @@ export function LoginForm({
 								/>
 							</div>
 							<div className="flex flex-col gap-3">
-								<Button type="submit" className="w-full">
+								<Button
+									type="submit"
+									className="w-full"
+									disabled={!email || !password}
+								>
 									Login
 								</Button>
 							</div>

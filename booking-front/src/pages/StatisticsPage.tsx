@@ -13,6 +13,7 @@ import StatisticService from "@/services/statisticService";
 import UserService from "@/services/userService";
 import { set } from "date-fns";
 import { StatisticsCards } from "@/components/Statistics/StatisticsCards";
+import { toast } from "sonner";
 
 export default function StatisTicsPage() {
 	const [showFilters, setShowFilters] = useState(false);
@@ -34,12 +35,13 @@ export default function StatisTicsPage() {
 				)
 					.then((data) => {
 						setStatsData(data);
-						console.log("Statistics for user and date range:", data);
 					})
 					.catch((error) => {
-						console.error(
-							"Error fetching statistics for user and date range:",
-							error
+						toast.error(
+							`Une erreur s'est produite lors de récupération des statistiques. Si cela se reproduit, merci de vous rapprocher de l'administrateur de l'application.`,
+							{
+								duration: 2000,
+							}
 						);
 					});
 			} else {
@@ -49,10 +51,14 @@ export default function StatisTicsPage() {
 				)
 					.then((data) => {
 						setStatsData(data);
-						console.log("Statistics for date range:", data);
 					})
 					.catch((error) => {
-						console.error("Error fetching statistics for date range:", error);
+						toast.error(
+							`Une erreur s'est produite lors de récupération des statistiques. Si cela se reproduit, merci de vous rapprocher de l'administrateur de l'application.`,
+							{
+								duration: 2000,
+							}
+						);
 					});
 			}
 		}
@@ -68,22 +74,27 @@ export default function StatisTicsPage() {
 				)
 					.then((data) => {
 						setStatsData(data);
-						console.log("Statistics for user and date range:", data);
 					})
 					.catch((error) => {
-						console.error(
-							"Error fetching statistics for user and date range:",
-							error
+						toast.error(
+							`Une erreur s'est produite lors de récupération des statistiques. Si cela se reproduit, merci de vous rapprocher de l'administrateur de l'application.`,
+							{
+								duration: 2000,
+							}
 						);
 					});
 			} else {
 				StatisticService.getGlobalStatisticsPerUserId(parseInt(selectedUserId))
 					.then((data) => {
 						setStatsData(data);
-						console.log("Statistics for userId:", data);
 					})
 					.catch((error) => {
-						console.error("Error fetching statistics for userId:", error);
+						toast.error(
+							`Une erreur s'est produite lors de récupération des statistiques. Si cela se reproduit, merci de vous rapprocher de l'administrateur de l'application.`,
+							{
+								duration: 2000,
+							}
+						);
 					});
 			}
 		}
@@ -94,10 +105,14 @@ export default function StatisTicsPage() {
 		StatisticService.getGlobalStatistics()
 			.then((data) => {
 				setStatsData(data);
-				console.log("Global Statistics:", data);
 			})
 			.catch((error) => {
-				console.error("Error fetching global statistics:", error);
+				toast.error(
+					`Une erreur s'est produite lors de récupération des statistiques. Si cela se reproduit, merci de vous rapprocher de l'administrateur de l'application.`,
+					{
+						duration: 2000,
+					}
+				);
 			});
 	}, []);
 
@@ -109,7 +124,12 @@ export default function StatisTicsPage() {
 					setUsers(data);
 				})
 				.catch((err) => {
-					console.error("Erreur chargement utilisateurs:", err);
+					toast.error(
+						`Une erreur s'est produite lors de récupération des utilisateurs de l'entreprise. Si cela se reproduit, merci de vous rapprocher de l'administrateur de l'application.`,
+						{
+							duration: 2000,
+						}
+					);
 				});
 		}
 	}, [showFilters]);
@@ -157,7 +177,7 @@ export default function StatisTicsPage() {
 
 			<br />
 
-			{statsData && <StatisticsCards data={statsData}/>}
+			{statsData && <StatisticsCards data={statsData} />}
 		</div>
 	);
 }

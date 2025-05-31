@@ -36,17 +36,14 @@ export default class BookingService {
 	}
 	public static async getBookings(): Promise<Booking[]> {
 		// Logic to cancel a booking
-		console.log(`Requesting bookings for user`);
 		const bookings = await AxiosInstance.get(`/Booking`);
 		return bookings.data;
 	}
 	public static async getBookingById(bookingId: string): Promise<Booking> {
-		console.log(`Requesting booking ${bookingId}`);
 		const bookings = await AxiosInstance.get(`/Booking/${bookingId}`);
 		return bookings.data;
 	}
 	public static async updateBooking(updateBooking: Booking): Promise<Booking> {
-		console.log(`Updating booking ${updateBooking.id}`);
 		const response = await AxiosInstance.put(`/Booking/${updateBooking.id}`, {
 			slotId: updateBooking.parkingSlotId,
 			date: formatDate(updateBooking.date),
@@ -55,25 +52,21 @@ export default class BookingService {
 		return response.data;
 	}
 	public static async deleteBooking(bookingId: string): Promise<Booking> {
-		console.log(`Deleting booking ${bookingId}`);
 		const response = await AxiosInstance.delete(`/Booking/${bookingId}`);
 		return response.data;
 	}
 	public static async getBookingsPerDate(date: Date): Promise<Booking[]> {
-		console.log(`Requesting bookings for date ${formatDate(date)}`);
 		const response = await AxiosInstance.get(
 			`/Booking/date/${formatDate(date)}`
 		);
 		return response.data;
 	}
 	public static async getBookingsByUserId(userId: number) {
-		console.log(`Requesting my bookings`);
 		const response = await AxiosInstance.get(`/Booking/user/${userId}`);
 		return response.data;
 	}
 
-	public static async checkInBooking(bookingId, userId){
-		console.log(`Checking in booking ${bookingId} for user ${userId}`);
+	public static async checkInBooking(bookingId, userId) {
 		const response = await AxiosInstance.post(`/Booking/checkin`, {
 			bookingId,
 			userId,

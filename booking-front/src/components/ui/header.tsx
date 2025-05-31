@@ -27,7 +27,7 @@ export default function Header() {
 				onClick={() => navigate("/booking")}
 				className="absolute left-1/2 transform -translate-x-1/2 text-xl font-bold cursor-pointer"
 			>
-				MonApp Parking
+				Parking Steward
 			</h1>
 
 			<div className="ml-auto">

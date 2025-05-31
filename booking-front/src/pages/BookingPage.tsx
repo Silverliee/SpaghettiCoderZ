@@ -16,6 +16,8 @@ import ParkingService from "@/services/parkingService";
 import ParkingMap from "@/components/Parking/ParkingMap";
 import { useAuth } from "@/contexts/AuthContext";
 import { max } from "date-fns";
+import { toast } from "sonner";
+import { formatDate } from "@/lib/utils";
 
 export default function BookingPage() {
 	const [selectedDate, setSelectedDate] = useState<Date | undefined>(
@@ -56,7 +58,12 @@ export default function BookingPage() {
 				}
 			})
 			.catch((err) => {
-				console.error("Erreur lors de la récupération des réservations :", err);
+				toast.error(
+					"Erreur lors de la récupération des réservations.Si cela se reproduit, merci de vous rapprocher de l'administrateur de l'application.",
+					{
+						duration: 2000,
+					}
+				);
 				setTodayBooking(null);
 			});
 	}, [selectedDate, user]);
@@ -64,32 +71,33 @@ export default function BookingPage() {
 	useEffect(() => {
 		if (user) {
 			let MAX_QUOTA_BOOKINGS = 0;
-			console.log("user role: " + user.role);
 			if (user.role === UserRole.MANAGER) {
 				MAX_QUOTA_BOOKINGS = 10; // Managers can book up to 10 slots
 				setMaxQuotaBooking(MAX_QUOTA_BOOKINGS);
 			}
-			BookingService.getBookingsByUserId(user.userId).then((bookings) => {
-				const currentBookings = bookings.filter(
-					(booking) => booking.status === BookingStatus.BOOKED
-				);
-				setNumberOfCurrentBookings(currentBookings.length);
-			});
+			BookingService.getBookingsByUserId(user.userId)
+				.then((bookings) => {
+					const currentBookings = bookings.filter(
+						(booking) => booking.status === BookingStatus.BOOKED
+					);
+					setNumberOfCurrentBookings(currentBookings.length);
+				})
+				.catch((err) => {
+					toast.error(
+						"Erreur lors de la récupération des réservations. Si cela se reproduit, merci de vous rapprocher de l'administrateur de l'application.",
+						{
+							duration: 2000,
+						}
+					);
+				});
 		}
-		console.log("MAX_QUOTA_BOOKINGS" + maxQuotaBooking);
-		console.log("user role: " + user?.role);
 	}, [user]);
-
-	useEffect(() => {
-		console.log("numberOfCurrentBookings: " + numberOfCurrentBookings);
-	}, [numberOfCurrentBookings]);
 
 	useEffect(() => {
 		const userHasABookingOnThisDate = parkingSlots.some(
 			(slot) =>
 				slot.isBooked &&
 				typeof slot.userId !== "undefined" &&
-				//slot?.userId === user?.id
 				slot?.userId === user?.userId
 		);
 		setHasAlreadyBooked(userHasABookingOnThisDate);
@@ -107,8 +115,13 @@ export default function BookingPage() {
 			.then((response) => {
 				setParkingSlots(response);
 			})
-			.catch((error) =>
-				console.error("Erreur de récupération des places :", error)
+			.catch((err) =>
+				toast.error(
+					"Erreur lors de la récupération des places du parking. Si cela se reproduit, merci de vous rapprocher de l'administrateur de l'application.",
+					{
+						duration: 2000,
+					}
+				)
 			);
 	}, [selectedDate]);
 
@@ -127,14 +140,27 @@ export default function BookingPage() {
 							: slot
 					)
 				);
+				toast.success(
+					`Votre place de parking a bien été réservée pour le ${formatDate(
+						utcDate
+					)}.`,
+					{
+						duration: 2000,
+					}
+				);
 				setNumberOfCurrentBookings((previous) => {
 					return previous + 1;
 				});
 				setHasAlreadyBooked(true);
 			})
-			.catch((error) =>
-				console.error("Erreur lors de la réservation :", error)
-			);
+			.catch((error) => {
+				toast.error(
+					`Une erreur s'est produite lors de votre réservation. Si cela se reproduit, merci de vous rapprocher de l'administrateur de l'application.`,
+					{
+						duration: 2000,
+					}
+				);
+			});
 	}
 
 	function handleCheckIn(bookingId: string) {
@@ -144,8 +170,18 @@ export default function BookingPage() {
 					prev ? { ...prev, status: BookingStatus.COMPLETED } : null
 				);
 				setHasAlreadyBooked(true);
+				toast.success(`Votre enregistrement a été effectué avec succès.`, {
+					duration: 2000,
+				});
 			})
-			.catch((error) => console.error("Erreur lors du check-in :", error));
+			.catch((error) =>
+				toast.error(
+					`Une erreur s'est produite lors de votre enreigstrement. Si cela se reproduit, merci de vous rapprocher de l'administrateur de l'application.`,
+					{
+						duration: 2000,
+					}
+				)
+			);
 	}
 
 	return (
